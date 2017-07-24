@@ -76,7 +76,7 @@ default="string";
 //              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.tag.script.cfml entity.name.tag.script.cfml
 //                   ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.tag.script.cfml entity.other.attribute-name.cfml
     var test = "#foo
-//              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.string.quoted.double.cfml constant.character.hash.cfml
+//              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.string.quoted.double.cfml constant.character.hash.start.cfml
     # true";
 
     foo = document;
@@ -116,6 +116,12 @@ default="string";
 //                        ^ keyword.operator.ternary.cfml
 //                                ^ keyword.operator.ternary.cfml
 
+  var test = {
+    1: true ? 1 : 0,
+    2: test
+//  ^ meta.struct-literal.key.cfml -constant.numeric.cfml
+  }
+
     throw( message = "test error message" );
 //  ^ meta.function-call.support.cfml support.function.cfml
 //       ^ meta.function-call.support.cfml meta.function-call.parameters.support.cfml punctuation.section.group.begin.cfml -support.function.cfml
@@ -138,6 +144,7 @@ default="string";
 //           ^ meta.function.declaration.cfml meta.brackets.cfml punctuation.section.brackets.begin.cfml
 
   function go( required string param = someVar & hint hint="go", param_2 ) {}
+//           ^^^^ meta.function.declaration.cfml
 //                                               ^ meta.parameter.optional.cfml variable.other.readwrite.cfml
 //                                                    ^ entity.other.attribute-name.cfml
 //                                                        ^ punctuation.separator.key-value.cfml
@@ -149,8 +156,10 @@ default="string";
 public void function setup( required root.model.cava.connection connection ) {}
 //                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ variable.parameter.function.cfml
 
-  void function testme() {}
+  void function testme() hint="testme" {}
 //^ meta.function.declaration.cfml storage.type.return-type.void.cfml
+//                       ^ meta.function.declaration.cfml
+//                       ^ -meta.function.declaration.cfml meta.function.declaration.cfml
 
   var test = {
     key: value,
@@ -167,10 +176,10 @@ public void function setup( required root.model.cava.connection connection ) {}
 //  ^ meta.struct-literal.key.cfml -entity.name.function
 //      ^ punctuation.separator.key-value.cfml
     'key' = value,
-//  ^ meta.struct-literal.key.cfml string.quoted.single.cfml
+//  ^^^^^ meta.struct-literal.key.cfml string.quoted.single.cfml
 //        ^ punctuation.separator.key-value.cfml -string
     "key" = value,
-//  ^ meta.struct-literal.key.cfml string.quoted.double.cfml
+//  ^^^^^ meta.struct-literal.key.cfml string.quoted.double.cfml
 //        ^ punctuation.separator.key-value.cfml -string
     456: 'A valid struct',
 //  ^^^ meta.struct-literal.key.cfml
@@ -243,7 +252,10 @@ public void function setup( required root.model.cava.connection connection ) {}
 //    ^ source.cfml.script meta.class.body.cfml punctuation.accessor.cfml
 //     ^^^ meta.function-call.method.cfml variable.function.cfml
 
-
+  this.test = function() {};
+//    ^ punctuation.accessor.cfml
+  this.test();
+//    ^ punctuation.accessor.cfml
 }
 // <- embedding.cfml source.cfml.script meta.class.body.cfml punctuation.section.block.end.cfml
  // <- embedding.cfml source.cfml.script -meta

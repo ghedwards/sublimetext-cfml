@@ -10,7 +10,7 @@
 <cfoutput>
 <!---     ^ embedding.cfml text.html.cfml meta.scope.cfoutput.cfml text.html.cfml --->
 #now()#
-<!--- <- embedding.cfml text.html.cfml meta.scope.cfoutput.cfml text.html.cfml constant.character.hash.cfml.start --->
+<!--- <- embedding.cfml text.html.cfml meta.scope.cfoutput.cfml text.html.cfml constant.character.hash.start.cfml --->
   <!--- <- embedding.cfml text.html.cfml meta.scope.cfoutput.cfml text.html.cfml source.cfml.script support.function.cfml --->
 </cfoutput>
 
@@ -52,7 +52,7 @@
 <!---                                                 ^^^^ source.cfml.script source.sql source.cfml.script meta.property.cfml --->
 <cfquery>BULK INSERT VAR1 FROM 'C:\#path#'</cfquery>
 <!---                             ^ source.sql string.quoted.single.sql constant.character.escape.sql  --->
-<!---                              ^ source.sql string.quoted.single.sql constant.character.hash.cfml.start --->
+<!---                              ^ source.sql string.quoted.single.sql constant.character.hash.start.cfml --->
 <cfscript>
 foo = 'hello world';
 <!--- <- embedding.cfml text.html.cfml source.cfml.script variable.other.readwrite.cfml --->

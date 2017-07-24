@@ -80,25 +80,25 @@ component {
 //                   ^ -variable.other.readwrite.cfml
   }
 
-  (i) => { return i * 2 }
-  // <- meta.function.anonymous.cfml meta.function.declaration.cfml meta.function.parameters.cfml punctuation.section.parameters.begin.cfml
-// ^ variable.parameter.function.cfml -punctuation.section.parameters.begin.cfml
-//  ^ punctuation.section.parameters.end.cfml -variable.parameter.function.cfml
-//   ^ -punctuation.section.parameters.end.cfml -meta.function.parameters.cfml
-//    ^ storage.type.function.arrow.cfml
-//      ^ -storage.type.function.arrow.cfml
-//       ^ meta.function.body.cfml punctuation.section.block.begin.cfml -meta.function.anonymous.cfml -meta.function.declaration.cfml
-//        ^ -punctuation.section.block.begin.cfml
-//         ^ keyword.control.flow.cfml
-//               ^ -keyword.control.flow.cfml
-//                ^ variable.other.readwrite.cfml
-//                 ^ -variable.other.readwrite.cfml
-//                  ^ keyword.operator.arithmetic.cfml
-//                   ^ -keyword.operator.arithmetic.cfml
-//                    ^ constant.numeric.cfml
-//                     ^ -constant.numeric.cfml
-//                      ^ punctuation.section.block.end.cfml
-//                       ^ -meta.function.body.cfml -punctuation.section.block.end.cfml
+  test((i) => { return i * 2 })
+//     ^ meta.function.anonymous.cfml meta.function.declaration.cfml meta.function.parameters.cfml punctuation.section.parameters.begin.cfml
+//      ^ variable.parameter.function.cfml -punctuation.section.parameters.begin.cfml
+//       ^ punctuation.section.parameters.end.cfml -variable.parameter.function.cfml
+//        ^ -punctuation.section.parameters.end.cfml -meta.function.parameters.cfml
+//         ^ storage.type.function.arrow.cfml
+//           ^ -storage.type.function.arrow.cfml
+//            ^ meta.function.body.cfml punctuation.section.block.begin.cfml -meta.function.declaration.cfml
+//             ^ -punctuation.section.block.begin.cfml
+//              ^ keyword.control.flow.cfml
+//                    ^ -keyword.control.flow.cfml
+//                     ^ variable.other.readwrite.cfml
+//                      ^ -variable.other.readwrite.cfml
+//                       ^ keyword.operator.arithmetic.cfml
+//                        ^ -keyword.operator.arithmetic.cfml
+//                         ^ constant.numeric.cfml
+//                          ^ -constant.numeric.cfml
+//                           ^ punctuation.section.block.end.cfml
+//                            ^  -meta.function.anonymous.cfml -meta.function.body.cfml -punctuation.section.block.end.cfml
 
   a.b = (i) => i * 2;
   // <- meta.function.declaration.cfml support.class.cfml

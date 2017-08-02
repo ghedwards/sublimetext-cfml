@@ -76,7 +76,7 @@ default="string";
 //              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.tag.script.cfml entity.name.tag.script.cfml
 //                   ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.tag.script.cfml entity.other.attribute-name.cfml
     var test = "#foo
-//              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.string.quoted.double.cfml constant.character.hash.start.cfml
+//              ^ embedding.cfml source.cfml.script meta.class.body.cfml meta.function.body.cfml meta.string.quoted.double.cfml punctuation.definition.template-expression.begin.cfml
     # true";
 
     foo = document;

@@ -55,7 +55,6 @@ contexts:
         2: entity.name.tag.cfml storage.type.class.cfml
         3: punctuation.definition.tag.end.cfml
       pop: true
-    - include: comments
     - include: cfmltags
 
   cfinterface:
@@ -333,11 +332,11 @@ contexts:
     - match: '##'
       scope: constant.character.escape.hash.cfml
     - match: '#'
-      scope: constant.character.hash.start.cfml
+      scope: punctuation.definition.template-expression.begin.cfml
       push:
         - meta_content_scope: source.cfml.script
         - match: '#'
-          scope: constant.character.hash.end.cfml
+          scope: punctuation.definition.template-expression.end.cfml
           pop: true
         - match: (?=.|\n)
           push:
@@ -349,10 +348,10 @@ contexts:
     - match: '##'
       scope: constant.character.escape.hash.cfml
     - match: '#'
-      scope: constant.character.hash.start.cfml
+      scope: punctuation.definition.template-expression.begin.cfml
       push:
         - match: '#'
-          scope: constant.character.hash.end.cfml
+          scope: punctuation.definition.template-expression.end.cfml
           pop: true
         - match: (?=.|\n)
           push:
@@ -364,10 +363,10 @@ contexts:
     - match: '##'
       scope: constant.character.escape.hash.cfml
     - match: '#'
-      scope: constant.character.hash.start.cfml
+      scope: punctuation.definition.template-expression.begin.cfml
       push:
         - match: '#'
-          scope: constant.character.hash.end.cfml
+          scope: punctuation.definition.template-expression.end.cfml
           pop: true
         - match: (?=.|\n)
           push:
@@ -428,29 +427,26 @@ contexts:
 
   string-content-single:
     - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-    - match: ('')
+    - match: "''"
       scope: constant.character.escape.quote.cfml
-    - match: (')
-      captures:
-        1: punctuation.definition.string.end.cfml
+    - match: "'"
+      scope: punctuation.definition.string.end.cfml
       pop: true
     - include: string-hash-delimiters
 
   string-content-double:
     - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-    - match: ("")
+    - match: '""'
       scope: constant.character.escape.quote.cfml
-    - match: (")
-      captures:
-        1: punctuation.definition.string.end.cfml
+    - match: '"'
+      scope: punctuation.definition.string.end.cfml
       pop: true
     - include: string-hash-delimiters
 
   tag-generic-attribute:
     - include: comments
-    - match: \b([a-zA-Z0-9:-]+)\b
-      captures:
-        1: entity.other.attribute-name.cfml
+    - match: \b[a-zA-Z0-9:-]+\b
+      scope: entity.other.attribute-name.cfml
       push:
         - match: =
           scope: punctuation.separator.key-value.cfml

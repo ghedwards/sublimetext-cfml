@@ -9,6 +9,14 @@ file_extensions:
 scope: embedding.cfml
 
 contexts:
+  else-pop:
+  - match: (?=\S)
+    pop: true
+
+  immediately-pop:
+  - match: (?=.|\n)
+    pop: true
+
   main:
   - match: (?i)(?=^\s*(/\*|//|import\b|(component|abstract\s*component|final\s*component|interface)(\s+|{)))
     push: scope:source.cfml.script
@@ -43,7 +51,49 @@ contexts:
     - match: '>'
       scope: punctuation.definition.tag.end.cfml
       set: cfcomponent-contents
-    - include: extends
+    - match: (?i:\b(?:extends)\b)
+      scope: entity.other.attribute-name.cfml storage.modifier.extends.cfml
+      push:
+      - - meta_scope: meta.class.inheritance.cfml
+        - match: ''
+          pop: true
+      - - match: '='
+          scope: punctuation.separator.key-value.cfml
+          set:
+          - match: "'"
+            scope: punctuation.definition.string.begin.cfml
+            set:
+            - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+              - match: "'"
+                scope: punctuation.definition.string.end.cfml
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: "''"
+                scope: constant.character.escape.quote.cfml
+              - match: (?=')
+                pop: true
+          - match: '"'
+            scope: punctuation.definition.string.begin.cfml
+            set:
+            - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+              - match: '"'
+                scope: punctuation.definition.string.end.cfml
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: '""'
+                scope: constant.character.escape.quote.cfml
+              - match: (?=")
+                pop: true
+          - match: (?=[A-Za-z0-9\-_.$])
+            set:
+            - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+              - match: ''
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: (?=[^A-Za-z0-9\-_.$])
+                pop: true
+          - include: else-pop
+        - include: else-pop
     - include: tag-generic-attribute
 
   cfcomponent-contents:
@@ -67,7 +117,49 @@ contexts:
     - match: '>'
       scope: punctuation.definition.tag.end.cfml
       set: cfinterface-contents
-    - include: extends
+    - match: (?i:\b(?:extends)\b)
+      scope: entity.other.attribute-name.cfml storage.modifier.extends.cfml
+      push:
+      - - meta_scope: meta.class.inheritance.cfml
+        - match: ''
+          pop: true
+      - - match: '='
+          scope: punctuation.separator.key-value.cfml
+          set:
+          - match: "'"
+            scope: punctuation.definition.string.begin.cfml
+            set:
+            - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+              - match: "'"
+                scope: punctuation.definition.string.end.cfml
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: "''"
+                scope: constant.character.escape.quote.cfml
+              - match: (?=')
+                pop: true
+          - match: '"'
+            scope: punctuation.definition.string.begin.cfml
+            set:
+            - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+              - match: '"'
+                scope: punctuation.definition.string.end.cfml
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: '""'
+                scope: constant.character.escape.quote.cfml
+              - match: (?=")
+                pop: true
+          - match: (?=[A-Za-z0-9\-_.$])
+            set:
+            - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+              - match: ''
+                pop: true
+            - - meta_scope: entity.other.inherited-class.cfml
+              - match: (?=[^A-Za-z0-9\-_.$])
+                pop: true
+          - include: else-pop
+        - include: else-pop
     - include: tag-generic-attribute
 
   cfinterface-contents:
@@ -81,45 +173,6 @@ contexts:
   - include: comments
   - include: cffunction
 
-  extends:
-  - push:
-    - - meta_scope: meta.class.inheritance.cfml
-      - pop: true
-        match: ''
-    - - scope: punctuation.separator.key-value.cfml
-        match: '='
-        set:
-        - scope: punctuation.definition.string.begin.cfml
-          match: "'"
-          set:
-          - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-          - meta_content_scope: entity.other.inherited-class.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: "''"
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: "'"
-        - scope: punctuation.definition.string.begin.cfml
-          match: '"'
-          set:
-          - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-          - meta_content_scope: entity.other.inherited-class.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: '""'
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: '"'
-        - match: (?=[^\s</>{;])
-          set:
-          - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml entity.other.inherited-class.cfml
-          - pop: true
-            match: (?=[\s</>{;])
-        - pop: true
-          match: (?=\S)
-      - pop: true
-        match: (?=\S)
-    scope: entity.other.attribute-name.cfml storage.modifier.extends.cfml
-    match: (?i:\bextends\b)
   cffunction:
   - match: (?i)(<)(cffunction)
     captures:
@@ -133,94 +186,119 @@ contexts:
       - meta_content_scope: meta.function.body.tag.cfml text.html.cfml
       - include: cffunction-end-pop
       - include: html
-    - push:
-      - scope: punctuation.separator.key-value.cfml
-        match: '='
-        set:
-        - scope: punctuation.definition.string.begin.cfml
-          match: "'"
-          set:
-          - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-          - meta_content_scope: entity.name.function.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: "''"
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: "'"
-        - scope: punctuation.definition.string.begin.cfml
-          match: '"'
-          set:
-          - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-          - meta_content_scope: entity.name.function.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: '""'
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: '"'
-        - match: (?=[^\s</>{;])
-          set:
-          - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml entity.name.function.cfml
-          - pop: true
-            match: (?=[\s</>{;])
-        - pop: true
-          match: (?=\S)
-      - pop: true
-        match: (?=\S)
+    - match: (?i:\b(?:name)\b)
       scope: entity.other.attribute-name.cfml
-      match: (?i:\bname\b)
-    - push:
-      - scope: punctuation.separator.key-value.cfml
-        match: '='
+      push:
+      - match: '='
+        scope: punctuation.separator.key-value.cfml
         set:
-        - scope: punctuation.definition.string.begin.cfml
-          match: "'"
+        - match: "'"
+          scope: punctuation.definition.string.begin.cfml
           set:
-          - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-          - meta_content_scope: storage.modifier.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: "''"
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: "'"
-        - scope: punctuation.definition.string.begin.cfml
-          match: '"'
+          - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+            - match: "'"
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: entity.name.function.cfml
+            - match: "''"
+              scope: constant.character.escape.quote.cfml
+            - match: (?=')
+              pop: true
+        - match: '"'
+          scope: punctuation.definition.string.begin.cfml
           set:
-          - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-          - meta_content_scope: storage.modifier.cfml
-          - scope: constant.character.escape.quote.cfml
-            match: '""'
-          - pop: true
-            scope: punctuation.definition.string.end.cfml
-            match: '"'
-        - match: (?=[^\s</>{;])
+          - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+            - match: '"'
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: entity.name.function.cfml
+            - match: '""'
+              scope: constant.character.escape.quote.cfml
+            - match: (?=")
+              pop: true
+        - match: (?=[A-Za-z0-9\-_.$])
           set:
-          - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml storage.modifier.cfml
-          - pop: true
-            match: (?=[\s</>{;])
-        - pop: true
-          match: (?=\S)
-      - pop: true
-        match: (?=\S)
+          - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+            - match: ''
+              pop: true
+          - - meta_scope: entity.name.function.cfml
+            - match: (?=[^A-Za-z0-9\-_.$])
+              pop: true
+        - include: else-pop
+      - include: else-pop
+    - match: (?i:\b(?:access)\b)
       scope: entity.other.attribute-name.cfml
-      match: (?i:\baccess\b)
-    - match: |-
-        (?x)(?i)
-          \b(returntype)\s*(=)\s*((")(
-          (void)
-          |
-          (any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid) # return-type.primitive
-          |
-          ([A-Za-z0-9_\.$]+) #return-type component/object (may need additional tokens)
-        )("))
-      captures:
-        1: entity.other.attribute-name.cfml
-        2: punctuation.separator.key-value.cfml
-        3: meta.string.quoted.double.cfml string.quoted.double.cfml
-        4: punctuation.definition.string.begin.cfml
-        6: storage.type.return-type.void.cfml
-        7: storage.type.return-type.primitive.cfml
-        8: storage.type.return-type.object.cfml
-        9: punctuation.definition.string.end.cfml
+      push:
+      - match: '='
+        scope: punctuation.separator.key-value.cfml
+        set:
+        - match: "'"
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+            - match: "'"
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: storage.modifier.cfml
+            - match: "''"
+              scope: constant.character.escape.quote.cfml
+            - match: (?=')
+              pop: true
+        - match: '"'
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+            - match: '"'
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: storage.modifier.cfml
+            - match: '""'
+              scope: constant.character.escape.quote.cfml
+            - match: (?=")
+              pop: true
+        - match: (?=[A-Za-z0-9\-_.$])
+          set:
+          - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+            - match: ''
+              pop: true
+          - - meta_scope: storage.modifier.cfml
+            - match: (?=[^A-Za-z0-9\-_.$])
+              pop: true
+        - include: else-pop
+      - include: else-pop
+    - match: (?i:\b(?:returntype)\b)
+      scope: entity.other.attribute-name.cfml
+      push:
+      - match: '='
+        scope: punctuation.separator.key-value.cfml
+        set:
+        - match: "'"
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+            - match: "'"
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - include: scope:source.cfml.script#storage-types
+            - include: else-pop
+        - match: '"'
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+            - match: '"'
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - include: scope:source.cfml.script#storage-types
+            - include: else-pop
+        - match: (?=[A-Za-z0-9\-_.$])
+          set:
+          - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+            - match: ''
+              pop: true
+          - - include: scope:source.cfml.script#storage-types
+            - include: else-pop
+        - include: else-pop
+      - include: else-pop
     - include: tag-generic-attribute
 
   cffunction-end-invalid:
@@ -311,19 +389,46 @@ contexts:
     - match: (/?>)
       scope: punctuation.definition.tag.end.cfml
       pop: true
-    - match: (?i)\b(name)\s*(=)\s*(?:((")([^<>"']*)("))|((')([^<>"']*)('))|([^<>"'\s]*))
-      captures:
-        1: entity.other.attribute-name.cfml
-        2: punctuation.separator.key-value.cfml
-        3: meta.string.quoted.double.cfml string.quoted.double.cfml
-        4: punctuation.definition.string.begin.cfml
-        5: meta.tag.property.name.cfml
-        6: punctuation.definition.string.end.cfml
-        7: meta.string.quoted.single.cfml string.quoted.single.cfml
-        8: punctuation.definition.string.begin.cfml
-        9: meta.tag.property.name.cfml
-        10: punctuation.definition.string.end.cfml
-        11: meta.string.unquoted.cfml string.unquoted.cfml meta.tag.property.name.cfml
+    - match: (?i:\b(?:name)\b)
+      scope: entity.other.attribute-name.cfml
+      push:
+      - match: '='
+        scope: punctuation.separator.key-value.cfml
+        set:
+        - match: "'"
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+            - match: "'"
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: meta.tag.property.name.cfml
+            - match: "''"
+              scope: constant.character.escape.quote.cfml
+            - match: (?=')
+              pop: true
+        - match: '"'
+          scope: punctuation.definition.string.begin.cfml
+          set:
+          - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+            - match: '"'
+              scope: punctuation.definition.string.end.cfml
+              pop: true
+          - - meta_scope: meta.tag.property.name.cfml
+            - match: '""'
+              scope: constant.character.escape.quote.cfml
+            - match: (?=")
+              pop: true
+        - match: (?=[A-Za-z0-9\-_.$])
+          set:
+          - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+            - match: ''
+              pop: true
+          - - meta_scope: meta.tag.property.name.cfml
+            - match: (?=[^A-Za-z0-9\-_.$])
+              pop: true
+        - include: else-pop
+      - include: else-pop
     - include: tag-generic-attribute
 
   cfargument:

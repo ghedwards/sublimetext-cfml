@@ -755,21 +755,7 @@ contexts:
             scope: storage.type.function.cfml
             pop: true
           - include: else-pop
-        - - match: '(?i:\b(any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid)\b)'
-            scope: storage.type.return-type.primitive.cfml
-            pop: true
-          - match: '(?i:\b(void)\b)'
-            scope: storage.type.return-type.void.cfml
-            pop: true
-          - match: '(?i:\b({{dot_path_identifier}})\b)(\[)(\])'
-            captures:
-              1: storage.type.return-type.object.array.cfml
-              2: meta.brackets.cfml punctuation.section.brackets.begin.cfml
-              3: meta.brackets.cfml punctuation.section.brackets.end.cfml
-            pop: true
-          - match: '(?i:\b{{dot_path_identifier}}\b)'
-            scope: storage.type.return-type.object.cfml
-            pop: true
+        - - include: storage-types
           - include: else-pop
         - - match: (?i)({{storage_modifier}})(\s+({{storage_modifier}}))?
             captures:
@@ -843,6 +829,23 @@ contexts:
     - match: '(?=(\{|=>|;))'
       pop: true
     - include: scope:embedding.cfml#tag-generic-attribute
+
+  storage-types:
+    - match: '(?i:\b(any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid)\b)'
+      scope: storage.type.return-type.primitive.cfml
+      pop: true
+    - match: '(?i:\b(void)\b)'
+      scope: storage.type.return-type.void.cfml
+      pop: true
+    - match: '(?i:\b({{dot_path_identifier}})\b)(\[)(\])'
+      captures:
+        1: storage.type.return-type.object.array.cfml
+        2: meta.brackets.cfml punctuation.section.brackets.begin.cfml
+        3: meta.brackets.cfml punctuation.section.brackets.end.cfml
+      pop: true
+    - match: '(?i:\b{{dot_path_identifier}}\b)'
+      scope: storage.type.return-type.object.cfml
+      pop: true
 
   struct-literal:
     - match: '\{'

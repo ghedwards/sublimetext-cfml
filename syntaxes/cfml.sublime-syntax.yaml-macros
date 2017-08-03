@@ -10,6 +10,14 @@ file_extensions:
 scope: embedding.cfml
 
 contexts:
+  else-pop:
+    - match: (?=\S)
+      pop: true
+
+  immediately-pop:
+    - match: (?=.|\n)
+      pop: true
+
   main:
     - match: (?i)(?=^\s*(/\*|//|import\b|(component|abstract\s*component|final\s*component|interface)(\s+|{)))
       push: scope:source.cfml.script
@@ -44,7 +52,11 @@ contexts:
         - match: ">"
           scope: punctuation.definition.tag.end.cfml
           set: cfcomponent-contents
-        - include: extends
+        - !attribute
+          name: extends
+          meta_scope: meta.class.inheritance.cfml
+          name_scope: storage.modifier.extends.cfml
+          value_scope: entity.other.inherited-class.cfml
         - include: tag-generic-attribute
 
   cfcomponent-contents:
@@ -68,7 +80,11 @@ contexts:
         - match: ">"
           scope: punctuation.definition.tag.end.cfml
           set: cfinterface-contents
-        - include: extends
+        - !attribute
+          name: extends
+          meta_scope: meta.class.inheritance.cfml
+          name_scope: storage.modifier.extends.cfml
+          value_scope: entity.other.inherited-class.cfml
         - include: tag-generic-attribute
 
   cfinterface-contents:
@@ -81,13 +97,6 @@ contexts:
       pop: true
     - include: comments
     - include: cffunction
-
-  extends:
-    - !attribute
-      name: extends
-      meta_scope: meta.class.inheritance.cfml
-      name_scope: storage.modifier.extends.cfml
-      value_scope: entity.other.inherited-class.cfml
 
   cffunction:
     - match: (?i)(<)(cffunction)
@@ -108,24 +117,9 @@ contexts:
         - !attribute
           name: access
           value_scope: storage.modifier.cfml
-        - match: |-
-            (?x)(?i)
-              \b(returntype)\s*(=)\s*((")(
-              (void)
-              |
-              (any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid) # return-type.primitive
-              |
-              ([A-Za-z0-9_\.$]+) #return-type component/object (may need additional tokens)
-            )("))
-          captures:
-            1: entity.other.attribute-name.cfml
-            2: punctuation.separator.key-value.cfml
-            3: meta.string.quoted.double.cfml string.quoted.double.cfml
-            4: punctuation.definition.string.begin.cfml
-            6: storage.type.return-type.void.cfml
-            7: storage.type.return-type.primitive.cfml
-            8: storage.type.return-type.object.cfml
-            9: punctuation.definition.string.end.cfml
+        - !attribute
+          name: returntype
+          value_scope: scope:source.cfml.script#storage-types
         - include: tag-generic-attribute
 
   cffunction-end-invalid:
@@ -216,19 +210,9 @@ contexts:
         - match: (/?>)
           scope: punctuation.definition.tag.end.cfml
           pop: true
-        - match: (?i)\b(name)\s*(=)\s*(?:((")([^<>"']*)("))|((')([^<>"']*)('))|([^<>"'\s]*))
-          captures:
-            1: entity.other.attribute-name.cfml
-            2: punctuation.separator.key-value.cfml
-            3: meta.string.quoted.double.cfml string.quoted.double.cfml
-            4: punctuation.definition.string.begin.cfml
-            5: meta.tag.property.name.cfml
-            6: punctuation.definition.string.end.cfml
-            7: meta.string.quoted.single.cfml string.quoted.single.cfml
-            8: punctuation.definition.string.begin.cfml
-            9: meta.tag.property.name.cfml
-            10: punctuation.definition.string.end.cfml
-            11: meta.string.unquoted.cfml string.unquoted.cfml meta.tag.property.name.cfml
+        - !attribute
+          name: name
+          value_scope: meta.tag.property.name.cfml
         - include: tag-generic-attribute
 
   cfargument:

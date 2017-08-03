@@ -67,7 +67,7 @@ contexts:
               - match: "'"
                 scope: punctuation.definition.string.end.cfml
                 pop: true
-            - - meta_scope: entity.other.inherited-class.cfml
+            - - meta_content_scope: entity.other.inherited-class.cfml
               - match: "''"
                 scope: constant.character.escape.quote.cfml
               - match: (?=')
@@ -79,7 +79,7 @@ contexts:
               - match: '"'
                 scope: punctuation.definition.string.end.cfml
                 pop: true
-            - - meta_scope: entity.other.inherited-class.cfml
+            - - meta_content_scope: entity.other.inherited-class.cfml
               - match: '""'
                 scope: constant.character.escape.quote.cfml
               - match: (?=")
@@ -133,7 +133,7 @@ contexts:
               - match: "'"
                 scope: punctuation.definition.string.end.cfml
                 pop: true
-            - - meta_scope: entity.other.inherited-class.cfml
+            - - meta_content_scope: entity.other.inherited-class.cfml
               - match: "''"
                 scope: constant.character.escape.quote.cfml
               - match: (?=')
@@ -145,7 +145,7 @@ contexts:
               - match: '"'
                 scope: punctuation.definition.string.end.cfml
                 pop: true
-            - - meta_scope: entity.other.inherited-class.cfml
+            - - meta_content_scope: entity.other.inherited-class.cfml
               - match: '""'
                 scope: constant.character.escape.quote.cfml
               - match: (?=")
@@ -199,7 +199,7 @@ contexts:
             - match: "'"
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: entity.name.function.cfml
+          - - meta_content_scope: entity.name.function.cfml
             - match: "''"
               scope: constant.character.escape.quote.cfml
             - match: (?=')
@@ -211,7 +211,7 @@ contexts:
             - match: '"'
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: entity.name.function.cfml
+          - - meta_content_scope: entity.name.function.cfml
             - match: '""'
               scope: constant.character.escape.quote.cfml
             - match: (?=")
@@ -239,7 +239,7 @@ contexts:
             - match: "'"
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: storage.modifier.cfml
+          - - meta_content_scope: storage.modifier.cfml
             - match: "''"
               scope: constant.character.escape.quote.cfml
             - match: (?=')
@@ -251,7 +251,7 @@ contexts:
             - match: '"'
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: storage.modifier.cfml
+          - - meta_content_scope: storage.modifier.cfml
             - match: '""'
               scope: constant.character.escape.quote.cfml
             - match: (?=")
@@ -402,7 +402,7 @@ contexts:
             - match: "'"
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: meta.tag.property.name.cfml
+          - - meta_content_scope: meta.tag.property.name.cfml
             - match: "''"
               scope: constant.character.escape.quote.cfml
             - match: (?=')
@@ -414,7 +414,7 @@ contexts:
             - match: '"'
               scope: punctuation.definition.string.end.cfml
               pop: true
-          - - meta_scope: meta.tag.property.name.cfml
+          - - meta_content_scope: meta.tag.property.name.cfml
             - match: '""'
               scope: constant.character.escape.quote.cfml
             - match: (?=")

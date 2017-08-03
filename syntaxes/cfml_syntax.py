@@ -39,7 +39,7 @@ def attribute_value_string(char, scope, value_scope):
         # we have a scope name
         syntax['set'].append([
             {
-                'meta_scope': value_scope
+                'meta_content_scope': value_scope
             },
             {
                 'match': char * 2,

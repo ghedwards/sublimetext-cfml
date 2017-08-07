@@ -52,12 +52,15 @@ contexts:
         - match: ">"
           scope: punctuation.definition.tag.end.cfml
           set: cfcomponent-contents
-        - !attribute
-          name: extends
-          meta_scope: meta.class.inheritance.cfml
-          name_scope: storage.modifier.extends.cfml
-          value_scope: entity.other.inherited-class.cfml
-        - include: tag-generic-attribute
+        - include: cfcomponent-attributes
+
+  cfcomponent-attributes:
+    - !attribute
+      name: extends
+      meta_scope: meta.class.inheritance.cfml
+      name_scope: storage.modifier.extends.cfml
+      value_scope: entity.other.inherited-class.cfml
+    - include: tag-generic-attribute
 
   cfcomponent-contents:
     - meta_content_scope: meta.class.body.tag.cfml
@@ -80,12 +83,7 @@ contexts:
         - match: ">"
           scope: punctuation.definition.tag.end.cfml
           set: cfinterface-contents
-        - !attribute
-          name: extends
-          meta_scope: meta.class.inheritance.cfml
-          name_scope: storage.modifier.extends.cfml
-          value_scope: entity.other.inherited-class.cfml
-        - include: tag-generic-attribute
+        - include: cfcomponent-attributes
 
   cfinterface-contents:
     - match: (?i)(</)(cfinterface)(>)

@@ -17,8 +17,9 @@
 <cfquery name="test">
 <!--- this should be a comment <cfqueryparam value=""> --->
 <!---                           ^ embedding.cfml text.html.cfml meta.scope.cfquery.cfml source.sql comment.line.cfml --->
+'unclosed sql string
 </cfquery>
-
+<!--- <- -source.sql --->
 <cf_custom attrname="#test#">
 <!--- <- meta.tag.custom.cfml --->
  <!--- <- meta.tag.custom.cfml entity.name.tag.custom.cfml --->

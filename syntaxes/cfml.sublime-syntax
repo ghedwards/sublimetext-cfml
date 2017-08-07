@@ -409,24 +409,26 @@ contexts:
       1: punctuation.definition.tag.begin.cfml
       2: entity.name.tag.cfml
     push:
-    - meta_scope: meta.tag.cfml
-    - match: '>'
-      scope: punctuation.definition.tag.end.cfml
-      set:
-      - meta_content_scope: meta.scope.cfquery.cfml source.sql
-      - include: scope:source.sql
-      with_prototype:
-      - match: (?i)(</)(cfquery)(>)
+    - - match: (?i)(</)(cfquery)(>)
         captures:
           0: meta.tag.cfml
           1: punctuation.definition.tag.begin.cfml
           2: entity.name.tag.cfml.end
           3: punctuation.definition.tag.end.cfml
         pop: true
-      - include: comments
-      - include: sql-hash-delimiters
-      - include: cfmltags
-    - include: tag-generic-attribute
+    - - meta_scope: meta.tag.cfml
+      - match: '>'
+        scope: punctuation.definition.tag.end.cfml
+        set:
+        - meta_content_scope: meta.scope.cfquery.cfml source.sql
+        - include: scope:source.sql
+        with_prototype:
+        - match: (?i)(?=</cfquery>)
+          pop: true
+        - include: comments
+        - include: sql-hash-delimiters
+        - include: cfmltags
+      - include: tag-generic-attribute
 
   cfscript:
   - match: (?i)(<)(cfscript)(>)

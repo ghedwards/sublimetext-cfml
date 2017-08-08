@@ -1,5 +1,26 @@
 from CFML.syntaxes import cfml_syntax
 
+def meta(scope):
+    return [
+        { 'meta_scope': scope },
+        { 'include': 'immediately-pop' }
+    ]
+
+def contexts(*contexts):
+    return cfml_syntax.order_output([c for c in contexts])
+
+def expect(name, scope):
+    syntax = [
+        { 'match': r'\b(?:%s)\b' % name, 'scope': scope, 'pop': True },
+        {'include': 'else-pop'}
+    ]
+
+    return cfml_syntax.order_output(syntax)
+
+def expect_context(context):
+    return [context, {'include': 'else-pop'}]
+
+
 def attribute(name, value_scope, name_scope=None, meta_scope=None):
     syntax = {
         'match': r'(?i:\b(?:%s)\b)' % name,
@@ -60,5 +81,41 @@ def function_call_params(meta_scope, named_param_scope, delimiter_scope):
             }
         ]
     }
+
+    return cfml_syntax.order_output(syntax)
+
+def block(push_or_set, meta_scope='meta.block.cfml'):
+    syntax = {
+        'match': r'\{',
+        'scope': 'punctuation.section.block.begin.cfml',
+        push_or_set: [
+            {
+                'meta_scope': meta_scope
+            },
+            {
+                'match': r'\}',
+                'scope': 'punctuation.section.block.end.cfml',
+                'pop': True
+            },
+            {
+                'include': 'statements'
+            }
+        ]
+    }
+
+    return cfml_syntax.order_output(syntax)
+
+def keyword_control(name, scope, meta_scope, contexts='block'):
+    syntax = {
+        'match': r'\b(?:%s)\b' % name,
+        'scope': 'keyword.control.%s.cfml' % scope,
+        'push': [
+            meta('meta.%s.cfml' % meta_scope),
+            'block-scope'
+        ]
+    }
+
+    if contexts == 'parens-block':
+        syntax['push'].append('parens-scope')
 
     return cfml_syntax.order_output(syntax)

@@ -112,56 +112,27 @@ contexts:
         1: storage.modifier.cfml
         2: storage.type.class.cfml
       push:
-        - meta_scope: meta.class.declaration.cfml
-        - match: '(?=\{)'
-          set: component-body
-        - include: scope:embedding.cfml#cfcomponent-attributes
+        - - !block ['set', 'meta.class.body.cfml']
+        - - meta_scope: meta.class.declaration.cfml
+          - match: (?=\{)
+            pop: true
+          - include: scope:embedding.cfml#cfcomponent-attributes
     - match: (?i)^\s*(interface)\b
       captures:
         1: storage.type.interface.cfml
       push:
-        - meta_scope: meta.interface.declaration.cfml
-        - match: '(?=\{)'
-          set: interface-body
-        - include: scope:embedding.cfml#cfcomponent-attributes
-
-  component-body:
-    - meta_scope: meta.class.body.cfml
-    - match: '\}'
-      scope: punctuation.section.block.end.cfml
-      pop: true
-    - match: '\{'
-      scope: punctuation.section.block.begin.cfml
-      push:
-        - match: '(?=\})'
-          pop: true
-        - include: statements
-
-  interface-body:
-    - meta_scope: meta.interface.body.cfml
-    - match: '\}'
-      scope: punctuation.section.block.end.cfml
-      pop: true
-    - match: '\{'
-      scope: punctuation.section.block.begin.cfml
-      push:
-        - match: '(?=\})'
-          pop: true
-        - include: statements
+        - - !block ['set', 'meta.interface.body.cfml']
+        - - meta_scope: meta.interface.declaration.cfml
+          - match: (?=\{)
+            pop: true
+          - include: scope:embedding.cfml#cfcomponent-attributes
 
   statements:
     - match: ';'
       scope: punctuation.terminator.statement.cfml
     - include: conditional
     - include: static
-    - match: '\{'
-      scope: punctuation.section.block.begin.cfml
-      push:
-        - meta_scope: meta.block.cfml
-        - match: '\}'
-          scope: punctuation.section.block.end.cfml
-          pop: true
-        - include: statements
+    - !block ['push', 'meta.block.cfml']
     - include: variable-declaration
     - include: keywords
     - include: tag-in-script
@@ -175,96 +146,43 @@ contexts:
     - match: \bswitch\b
       scope: keyword.control.switch.cfml
       push:
-        - meta_scope: meta.switch.cfml
-        - match: (?=\()
-          push: parenthesized-expression
-        - match: '\}'
-          scope: meta.block.cfml punctuation.section.block.end.cfml
-          pop: true
-        - match: '\{'
-          scope: punctuation.section.block.begin.cfml
-          push:
-            - meta_scope: meta.block.cfml
-            - match: (?=\})
-              pop: true
-            - match: \b(case)\b
-              scope: keyword.control.switch.cfml
-              push:
-                - expect-case-colon
-                - expression
-            - match: \b(default)\b
-              scope: keyword.control.switch.cfml
-              push:
-                - expect-case-colon
-            - include: statements
+        - !meta meta.switch.cfml
+        - - match: '\{'
+            scope: punctuation.section.block.begin.cfml
+            set:
+              - meta_scope: meta.block.cfml
+              - match: '\}'
+                scope: punctuation.section.block.end.cfml
+                pop: true
+              - match: \b(case)\b
+                scope: keyword.control.switch.cfml
+                push:
+                  - expect-case-colon
+                  - expression
+              - match: \b(default)\b
+                scope: keyword.control.switch.cfml
+                push:
+                  - expect-case-colon
+              - include: statements
+          - include: else-pop
+        - - include: parenthesized-expression
+          - include: else-pop
 
     - match: \bdo\b
       scope: keyword.control.loop.cfml
       push:
-        - meta_scope: meta.do-while.cfml
-        - match: '\{'
-          scope: punctuation.section.block.begin.cfml
-          push:
-            - meta_scope: meta.block.cfml
-            - match: '\}'
-              scope: punctuation.section.block.end.cfml
-              pop: true
-            - include: statements
-        - match: \bwhile\b
-          scope: keyword.control.loop.cfml
-        - match: '\('
-          scope: punctuation.section.group.begin.cfml
-          push:
-            - meta_scope: meta.group.cfml
-            - match: '(?=\))'
-              pop: true
-            - match: (?=\S)
-              push: expression
-        - match: '\)'
-          scope: meta.group.cfml punctuation.section.group.end.cfml
-          pop: true
+        - !meta meta.do-while.cfml
+        - - include: parens-scope
+        - !expect [ 'while', 'keyword.control.loop.cfml' ]
+        - - include: block-scope
 
-    - match: \bfor\b
-      scope: keyword.control.loop.cfml
-      push:
-        - meta_scope: meta.for.cfml
-        - include: parens-block-scope
-
-    - match: \bwhile\b
-      scope: keyword.control.loop.cfml
-      push:
-        - meta_scope: meta.while.cfml
-        - include: parens-block-scope
-
-    - match: \b(else\s+if|if)\b
-      scope: keyword.control.conditional.cfml
-      push:
-        - meta_scope: meta.conditional.cfml
-        - include: parens-block-scope
-
-    - match: \belse\b
-      scope: keyword.control.conditional.cfml
-      push:
-        - meta_scope: meta.conditional.cfml
-        - include: block-scope
-
-    - match: \btry\b
-      scope: keyword.control.trycatch.cfml
-      push:
-        - meta_scope: meta.try.cfml
-        - include: block-scope
-
-    - match: \bfinally\b
-      scope: keyword.control.trycatch.cfml
-      push:
-        - meta_scope: meta.finally.cfml
-        - include: block-scope
-
-    - match: \bcatch\b
-      scope: keyword.control.trycatch.cfml
-      push:
-        - meta_scope: meta.catch.cfml
-        - include: parens-block-scope
+    - !keyword_control [ 'for', 'loop', 'for', 'parens-block' ]
+    - !keyword_control [ 'while', 'loop', 'while', 'parens-block' ]
+    - !keyword_control [ 'else\s+if|if', 'conditional', 'conditional', 'parens-block' ]
+    - !keyword_control [ 'else', 'conditional', 'conditional', 'block' ]
+    - !keyword_control [ 'try', 'trycatch', 'try', 'block' ]
+    - !keyword_control [ 'finally', 'trycatch', 'finally', 'block' ]
+    - !keyword_control [ 'catch', 'trycatch', 'catch', 'parens-block' ]
 
   expect-case-colon:
     - match: ':'
@@ -272,10 +190,10 @@ contexts:
       pop: true
     - include: else-pop
 
-  parens-block-scope:
+  parens-scope:
     - match: '\('
       scope: punctuation.section.group.begin.cfml
-      push:
+      set:
         - meta_scope: meta.group.cfml
         - match: '\)'
           scope: punctuation.section.group.end.cfml
@@ -285,19 +203,10 @@ contexts:
         - include: variable-declaration
         - match: (?=\S)
           push: expression
-    - include: block-scope
+    - include: else-pop
 
   block-scope:
-    - match: '\}'
-      scope: meta.block.cfml punctuation.section.block.end.cfml
-      pop: true
-    - match: '\{'
-      scope: punctuation.section.block.begin.cfml
-      push:
-        - meta_scope: meta.block.cfml
-        - match: (?=\})
-          pop: true
-        - include: statements
+    - !block ['set', 'meta.block.cfml']
     - include: else-pop
 
   static:
@@ -1381,5 +1290,3 @@ contexts:
             meta_scope: meta.function-call.parameters.method.support.cfml
             named_param_scope: entity.other.method-parameter.cfml
             delimiter_scope: punctuation.separator.function-call.method.support.cfml
-
-

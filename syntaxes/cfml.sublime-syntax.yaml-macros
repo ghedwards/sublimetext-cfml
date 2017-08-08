@@ -208,10 +208,13 @@ contexts:
         - match: (/?>)
           scope: punctuation.definition.tag.end.cfml
           pop: true
-        - !attribute
-          name: name
-          value_scope: meta.tag.property.name.cfml
-        - include: tag-generic-attribute
+        - include: cfproperty-attributes
+
+  cfproperty-attributes:
+    - !attribute
+      name: name
+      value_scope: meta.tag.property.name.cfml
+    - include: tag-generic-attribute
 
   cfargument:
     - match: (?i)(<)(cfargument)\b

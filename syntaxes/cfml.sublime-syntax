@@ -349,47 +349,50 @@ contexts:
     - match: (/?>)
       scope: punctuation.definition.tag.end.cfml
       pop: true
-    - match: (?i:\b(?:name)\b)
-      scope: entity.other.attribute-name.cfml
-      push:
-      - match: '='
-        scope: punctuation.separator.key-value.cfml
+    - include: cfproperty-attributes
+
+  cfproperty-attributes:
+  - match: (?i:\b(?:name)\b)
+    scope: entity.other.attribute-name.cfml
+    push:
+    - match: '='
+      scope: punctuation.separator.key-value.cfml
+      set:
+      - match: "'"
+        scope: punctuation.definition.string.begin.cfml
         set:
-        - match: "'"
-          scope: punctuation.definition.string.begin.cfml
-          set:
-          - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-            - match: "'"
-              scope: punctuation.definition.string.end.cfml
-              pop: true
-          - - meta_content_scope: meta.tag.property.name.cfml
-            - match: "''"
-              scope: constant.character.escape.quote.cfml
-            - match: (?=')
-              pop: true
-        - match: '"'
-          scope: punctuation.definition.string.begin.cfml
-          set:
-          - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-            - match: '"'
-              scope: punctuation.definition.string.end.cfml
-              pop: true
-          - - meta_content_scope: meta.tag.property.name.cfml
-            - match: '""'
-              scope: constant.character.escape.quote.cfml
-            - match: (?=")
-              pop: true
-        - match: (?=[A-Za-z0-9\-_.$])
-          set:
-          - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
-            - match: ''
-              pop: true
-          - - meta_scope: meta.tag.property.name.cfml
-            - match: (?=[^A-Za-z0-9\-_.$])
-              pop: true
-        - include: else-pop
+        - - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
+          - match: "'"
+            scope: punctuation.definition.string.end.cfml
+            pop: true
+        - - meta_content_scope: meta.tag.property.name.cfml
+          - match: "''"
+            scope: constant.character.escape.quote.cfml
+          - match: (?=')
+            pop: true
+      - match: '"'
+        scope: punctuation.definition.string.begin.cfml
+        set:
+        - - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
+          - match: '"'
+            scope: punctuation.definition.string.end.cfml
+            pop: true
+        - - meta_content_scope: meta.tag.property.name.cfml
+          - match: '""'
+            scope: constant.character.escape.quote.cfml
+          - match: (?=")
+            pop: true
+      - match: (?=[A-Za-z0-9\-_.$])
+        set:
+        - - meta_scope: meta.string.unquoted.cfml string.unquoted.cfml
+          - match: ''
+            pop: true
+        - - meta_scope: meta.tag.property.name.cfml
+          - match: (?=[^A-Za-z0-9\-_.$])
+            pop: true
       - include: else-pop
-    - include: tag-generic-attribute
+    - include: else-pop
+  - include: tag-generic-attribute
 
   cfargument:
   - match: (?i)(<)(cfargument)\b

@@ -989,20 +989,7 @@ contexts:
         - - meta_scope: meta.tag.script.cfml meta.tag.property.cfml
           - match: (?=[;{])
             pop: true
-          - match: (?i)\b(name)\s*(=)\s*(?:((")([^<>"']*)("))|((')([^<>"']*)('))|([^<>"'\s]*))
-            captures:
-              1: entity.other.attribute-name.cfml
-              2: punctuation.separator.key-value.cfml
-              3: meta.string.quoted.double.cfml string.quoted.double.cfml
-              4: punctuation.definition.string.begin.cfml
-              5: meta.tag.property.name.cfml
-              6: punctuation.definition.string.end.cfml
-              7: meta.string.quoted.single.cfml string.quoted.single.cfml
-              8: punctuation.definition.string.begin.cfml
-              9: meta.tag.property.name.cfml
-              10: punctuation.definition.string.end.cfml
-              11: meta.string.unquoted.cfml string.unquoted.cfml meta.tag.property.name.cfml
-          - include: scope:embedding.cfml#tag-generic-attribute
+          - include: scope:embedding.cfml#cfproperty-attributes
         - - match: ({{identifier}})\s+({{identifier}}\b)(?!\s*=)
             captures:
               1: storage.type.cfml

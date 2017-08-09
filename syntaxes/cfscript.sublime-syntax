@@ -21,8 +21,7 @@ variables:
   dot_path_identifier: '[_$[:alpha:]][_$[:alnum:].]*'
   constant_identifier: '[[:upper:]][_$[:digit:][:upper:]]*\b'
   arrow_func_lookahead: \s*\([^()]*?\)\s*=>
-  sql_lookahead: \s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER
-    BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b
+  sql_lookahead: \s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b
   param_attributes: \b(name|default|max|maxLength|min|pattern|type)\b
   storage_modifier: \b(private|package|public|remote|static|final|abstract)\b
   return_types: \b(?:any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid)\b
@@ -141,14 +140,8 @@ contexts:
     scope: punctuation.terminator.statement.cfml
   - include: conditional
   - include: static
-  - match: \{
-    scope: punctuation.section.block.begin.cfml
-    push:
-    - meta_scope: meta.block.cfml
-    - match: \}
-      scope: punctuation.section.block.end.cfml
-      pop: true
-    - include: statements
+  - match: (?=\{)
+    push: block-scope
   - include: variable-declaration
   - include: keywords
   - include: tag-in-script
@@ -265,6 +258,20 @@ contexts:
       push: expression
   - include: else-pop
 
+  parenthesized-expression:
+  - match: \(
+    scope: punctuation.section.group.begin.cfml
+    set:
+    - meta_scope: meta.group.cfml
+    - match: \)
+      scope: punctuation.section.group.end.cfml
+      pop: true
+    - match: (?=\S)
+      push: expression
+  - match: \)
+    scope: invalid.illegal.stray.brace.round.cfml
+    pop: true
+
   block-scope:
   - match: \{
     scope: punctuation.section.block.begin.cfml
@@ -351,20 +358,6 @@ contexts:
   - match: (?=\S)
     set: expression-statement
 
-  parenthesized-expression:
-  - match: \(
-    scope: punctuation.section.group.begin.cfml
-    set:
-    - meta_scope: meta.group.cfml
-    - match: \)
-      scope: punctuation.section.group.end.cfml
-      pop: true
-    - match: (?=\S)
-      push: expression
-  - match: \)
-    scope: invalid.illegal.stray.brace.round.cfml
-    pop: true
-
   fallthrough:
 
     - match: =>
@@ -393,9 +386,9 @@ contexts:
   string-single:
   - meta_include_prototype: false
   - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
-  - match: ('')
+  - match: "''"
     scope: constant.character.escape.quote.cfml
-  - match: (')
+  - match: "'"
     scope: punctuation.definition.string.end.cfml
     pop: true
   - include: scope:embedding.cfml#string-hash-delimiters
@@ -403,13 +396,13 @@ contexts:
   string-sql-single:
   - meta_include_prototype: false
   - meta_scope: meta.string.quoted.single.cfml
-  - match: (')
+  - match: "'"
     scope: string.quoted.single.cfml punctuation.definition.string.end.cfml
     pop: true
   - match: (?={{sql_lookahead}})
     push: scope:source.sql
     with_prototype:
-    - match: ('')
+    - match: "''"
       scope: constant.character.escape.quote.cfml
     - match: (?=')
       pop: true
@@ -441,40 +434,6 @@ contexts:
       pop: true
     - include: scope:embedding.cfml#sql-hash-delimiters
 
-  sql-string:
-  - match: '"'
-    scope: string.quoted.double.cfml punctuation.definition.string.begin.cfml
-    set:
-    - meta_include_prototype: false
-    - meta_content_scope: meta.string.quoted.double.cfml
-    - match: '"'
-      scope: string.quoted.double.cfml punctuation.definition.string.end.cfml
-      pop: true
-    - match: (?=.|\n)
-      push: scope:source.sql
-      with_prototype:
-      - match: '""'
-        scope: constant.character.escape.quote.cfml
-      - match: (?=")
-        pop: true
-      - include: scope:embedding.cfml#sql-hash-delimiters
-  - match: "'"
-    scope: string.quoted.single.cfml punctuation.definition.string.begin.cfml
-    set:
-    - meta_include_prototype: false
-    - meta_content_scope: meta.string.single.double.cfml
-    - match: "'"
-      scope: string.quoted.single.cfml punctuation.definition.string.end.cfml
-      pop: true
-    - match: (?=.|\n)
-      push: scope:source.sql
-      with_prototype:
-      - match: "''"
-        scope: constant.character.escape.quote.cfml
-      - match: (?=')
-        pop: true
-      - include: scope:embedding.cfml#sql-hash-delimiters
-
   constructor:
   - match: \bnew\b
     scope: keyword.operator.word.new.cfml
@@ -492,12 +451,13 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
-      - match: \b\d*{{identifier}}\b(\.)?
+      - include: else-pop
+    - - match: \b\d*{{identifier}}\b(\.)?
         scope: entity.name.class.cfml
       - include: else-pop
 
@@ -696,24 +656,19 @@ contexts:
   function-declaration:
   - match: (?=.)
     set:
-    - - match: (?={)
-        set: function-block
+    - - include: function-block
       - include: else-pop
     - - meta_scope: meta.function.declaration.cfml
       - include: immediately-pop
-    - - match: (?=[^\s\{\(])
-        set:
-        - match: (?=[\{;])
-          pop: true
-        - include: scope:embedding.cfml#tag-generic-attribute
+    - - include: scope:embedding.cfml#tag-generic-attribute
       - include: else-pop
     - - include: function-declaration-parameters
       - include: else-pop
-    - - match: '{{identifier}}'
+    - - match: \b(?:{{identifier}})\b
         scope: entity.name.function.cfml
         pop: true
       - include: else-pop
-    - - match: (?i:(\bfunction\b))
+    - - match: \b(?:function)\b
         scope: storage.type.function.cfml
         pop: true
       - include: else-pop
@@ -729,9 +684,7 @@ contexts:
   arrow-function-declaration:
   - match: (?=.)
     set:
-    - - meta_scope: meta.function.declaration.cfml
-      - match: (?=\{)
-        set: function-block
+    - - include: function-block
       - match: (?=\S)
         set:
         - - meta_scope: meta.function.body.cfml
@@ -740,6 +693,8 @@ contexts:
             pop: true
           - include: expression-statement-end
         - expression-begin
+    - - meta_scope: meta.function.declaration.cfml
+      - include: immediately-pop
     - - match: =>
         scope: storage.type.function.arrow.cfml
         pop: true
@@ -748,49 +703,41 @@ contexts:
       - include: else-pop
 
   function-block:
-  - match: \}
-    scope: meta.function.body.cfml punctuation.section.block.end.cfml
-    pop: true
   - match: \{
     scope: punctuation.section.block.begin.cfml
-    push:
+    set:
     - meta_scope: meta.function.body.cfml
-    - match: (?=\})
+    - match: \}
+      scope: punctuation.section.block.end.cfml
       pop: true
     - include: statements
 
   function-declaration-parameters:
   - match: \(
     scope: punctuation.section.parameters.begin.cfml
-    push:
+    set:
     - meta_scope: meta.function.parameters.cfml
     - match: \)
       scope: punctuation.section.parameters.end.cfml
-      set: function-declaration-properties
-    - match: (?i:required)
+      pop: true
+    - match: ','
+      scope: punctuation.separator.parameter.function.cfml
+    - match: (?i)\brequired\b
       scope: keyword.other.required.parameter.cfml
     - match: (?:({{identifier}})\s+)?({{dot_path_identifier}})
       captures:
         1: storage.type.cfml
         2: variable.parameter.function.cfml
-    - match: ','
-      scope: punctuation.separator.parameter.function.cfml
-    - match: '='
-      scope: keyword.operator.assignment.cfml
       push:
-      - meta_scope: meta.parameter.optional.cfml
-      - match: (?=[,)])
-        pop: true
-      - match: (?=\S)
-        push:
-        - - include: scope:embedding.cfml#tag-generic-attribute
-          - include: else-pop
-        - expression-no-comma
-
-  function-declaration-properties:
-  - match: (?=(\{|=>|;))
-    pop: true
-  - include: scope:embedding.cfml#tag-generic-attribute
+      - - include: scope:embedding.cfml#tag-generic-attribute
+        - include: else-pop
+      - - match: '='
+          scope: keyword.operator.assignment.cfml
+          set:
+          - - meta_scope: meta.parameter.optional.cfml
+            - include: immediately-pop
+          - expression-no-comma
+        - include: else-pop
 
   storage-types:
   - match: (?i:\b(any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid)\b)
@@ -974,11 +921,12 @@ contexts:
             scope: punctuation.separator.function-call.cfml
           - match: \b({{identifier}})\s*(=)(?!=)
             captures:
-              '1': entity.other.function-parameter.cfml
               '2': keyword.operator.assignment.cfml
+              '1': entity.other.function-parameter.cfml
             push: expression-no-comma
           - match: (?=\S)
             push: expression-no-comma
+        - include: else-pop
   - match: (?={{identifier}}\s*\.\s*{{identifier}}\s*\()
     set:
     - match: (?={{identifier}}\s*\.)
@@ -1024,11 +972,12 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
+      - include: else-pop
   static-method-call:
   - match: ({{identifier}})\s*(?=\()
     captures:
@@ -1047,11 +996,12 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
+      - include: else-pop
   cfml-scopes:
   - match: \b(?i:super)\b
     scope: variable.language.super.cfml
@@ -1239,21 +1189,21 @@ contexts:
     set:
     - - meta_scope: meta.function-call.support.cfml meta.function-call.support.createcomponent.cfml
       - include: immediately-pop
-    - - include: support-call-params
+    - support-call-params
   - match: (?i)\b(createobject)(?=\((?:\s*type\s*=)?\s*[\"']java[\"']\s*,)
     captures:
       1: support.function.cfml
     set:
     - - meta_scope: meta.function-call.support.cfml meta.function-call.support.createjavaobject.cfml
       - include: immediately-pop
-    - - include: support-call-params
+    - support-call-params
   - match: (?i)\b(entity(?:load|loadbypk|new))(?=\()
     captures:
       1: support.function.cfml
     set:
     - - meta_scope: meta.function-call.support.cfml meta.function-call.support.entity.cfml
       - include: immediately-pop
-    - - include: support-call-params
+    - support-call-params
   - match: |-
       (?x)\b
         (?i:
@@ -1355,7 +1305,7 @@ contexts:
     set:
     - - meta_scope: meta.function-call.support.cfml
       - include: immediately-pop
-    - - include: support-call-params
+    - support-call-params
 
   support-call-params:
   - match: \(
@@ -1369,11 +1319,12 @@ contexts:
       scope: punctuation.separator.function-call.support.cfml
     - match: \b({{identifier}})\s*(=)(?!=)
       captures:
-        '1': entity.other.function-parameter.cfml
         '2': keyword.operator.assignment.cfml
+        '1': entity.other.function-parameter.cfml
       push: expression-no-comma
     - match: (?=\S)
       push: expression-no-comma
+  - include: else-pop
   support-method-call:
   - match: |-
       (?x)(?i:\b
@@ -1408,8 +1359,9 @@ contexts:
           scope: punctuation.separator.function-call.method.support.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
+      - include: else-pop

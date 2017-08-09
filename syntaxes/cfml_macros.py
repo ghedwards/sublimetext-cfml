@@ -14,12 +14,14 @@ def expect(name, scope):
         { 'match': r'\b(?:%s)\b' % name, 'scope': scope, 'pop': True },
         {'include': 'else-pop'}
     ]
-
     return cfml_syntax.order_output(syntax)
 
 def expect_context(context):
-    return [context, {'include': 'else-pop'}]
-
+    return [
+        {'include': context},
+        {'include': 'else-pop'}
+    ]
+    return cfml_syntax.order_output(syntax)
 
 def attribute(name, value_scope, name_scope=None, meta_scope=None):
     syntax = {
@@ -51,36 +53,42 @@ def attribute(name, value_scope, name_scope=None, meta_scope=None):
 
 
 def function_call_params(meta_scope, named_param_scope, delimiter_scope):
-    syntax = {
-        'match': r'\(',
-        'scope': 'punctuation.section.group.begin.cfml',
-        'set': [
-            {
-                'meta_scope': meta_scope
-            },
-            {
-                'match': r'\)',
-                'scope': 'punctuation.section.group.end.cfml',
-                'pop': True
-            },
-            {
-                'match': ',',
-                'scope': delimiter_scope
-            },
-            {
-                'match': r'\b({{identifier}})\s*(=)(?!=)',
-                'captures': {
-                    '1': named_param_scope,
-                    '2': 'keyword.operator.assignment.cfml'
+    syntax = [
+        {
+            'match': r'\(',
+            'scope': 'punctuation.section.group.begin.cfml',
+            'set': [
+                {
+                    'meta_scope': meta_scope
                 },
-                'push': 'expression-no-comma'
-            },
-            {
-                'match': r'(?=\S)',
-                'push': 'expression-no-comma'
-            }
-        ]
-    }
+                {
+                    'match': r'\)',
+                    'scope': 'punctuation.section.group.end.cfml',
+                    'pop': True
+                },
+                {
+                    'match': ',',
+                    'scope': delimiter_scope
+                },
+                {
+                    'match': r'\b({{identifier}})\s*(=)(?!=)',
+                    'captures': {
+                        '1': named_param_scope,
+                        '2': 'keyword.operator.assignment.cfml'
+                    },
+                    'push': 'expression-no-comma'
+                },
+                {
+                    'match': r'(?=\S)',
+                    'push': 'expression-no-comma'
+                }
+            ]
+        },
+        {
+            'include': 'else-pop'
+        }
+
+    ]
 
     return cfml_syntax.order_output(syntax)
 

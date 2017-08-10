@@ -22,6 +22,7 @@ variables:
   identifier: '[_$[:alpha:]][_$[:alnum:]]*'
   dot_path_identifier: '[_$[:alpha:]][_$[:alnum:].]*'
   constant_identifier: '[[:upper:]][_$[:digit:][:upper:]]*\b'
+  attribute_name: '[_[:alpha:]][[:alnum:]_\-:]*'
   arrow_func_lookahead: '\s*\([^()]*?\)\s*=>'
   sql_lookahead: '\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b'
   param_attributes: '\b(name|default|max|maxLength|min|pattern|type)\b'
@@ -592,7 +593,7 @@ contexts:
       set:
         - !expect_context function-block
         - !meta meta.function.declaration.cfml
-        - !expect_context scope:embedding.cfml#tag-generic-attribute
+        - !expect_context [ 'scope:embedding.cfml#tag-generic-attribute', '[;{]' ]
         - !expect_context function-declaration-parameters
         - !expect [ '{{identifier}}', 'entity.name.function.cfml' ]
         - !expect [ 'function', 'storage.type.function.cfml' ]
@@ -623,7 +624,7 @@ contexts:
         - !expect_context function-declaration-parameters
 
   function-block:
-    - !block ['set', 'meta.function.body.cfml']
+    - !block [ 'set', 'meta.function.body.cfml' ]
 
   function-declaration-parameters:
     - match: \(
@@ -642,7 +643,7 @@ contexts:
             1: storage.type.cfml
             2: variable.parameter.function.cfml
           push:
-            - !expect_context scope:embedding.cfml#tag-generic-attribute
+            - !expect_context [ 'scope:embedding.cfml#tag-generic-attribute', '[,)]' ]
             - - match: '='
                 scope: keyword.operator.assignment.cfml
                 set:
@@ -950,29 +951,12 @@ contexts:
           pop: true
         - include: tag-generic-attribute-script
 
-    - match: |-
-        (?x)
-            (\b)
-            (?i:
-              (ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar
-              |chart|chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo
-              |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar
-              |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask
-              |execute|feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn
-              |gridrow|gridupdate|header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image
-              |imap|imapfilter|import|include|index|input|insert|invoke|invokeargument|layout
-              |layoutarea|ldap|location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart
-              |map|mapitem|mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object
-              |objectcache|output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop
-              |presentation|presentationslide|presenter|print|processingdirective|procparam|procresult
-              |progressbar|property|query|queryparam|registry|report|reportparam|savecontent|schedule
-              |search|select|setting|sharepoint|silent|slider|spreadsheet|sprydataset|storedproc
-              |table|textarea|textinput|thread|throw|timer|tooltip|trace|transaction|tree|treeitem|try
-              |update|video|videoplayer|videoplayerparam|wddx|websocket|window|xml|zip|zipparam)
-            )
-            (?=\s+[a-zA-Z0-9:-]+\s*[=;{\n]|\s*[{\n])
+    - match: !tags |-
+        (?x)(?i)
+            \b({tags})
+            (?=\s+{{attribute_name}}\s*[=;{\n]|\s*[{\n])
       captures:
-        2: entity.name.tag.script.cfml
+        1: entity.name.tag.script.cfml
       push:
         - meta_scope: meta.tag.script.cfml
         - match: (?=;)
@@ -982,7 +966,7 @@ contexts:
         - include: tag-generic-attribute-script
 
   tag-generic-attribute-script:
-    - match: \b([a-zA-Z0-9:-]+)\b
+    - match: \b{{attribute_name}}\b
       scope: entity.other.attribute-name.cfml
       push:
         - match: '='
@@ -991,25 +975,11 @@ contexts:
         - include: else-pop
 
   tag-in-script-cf:
-    - match: |-
+    - match: !tags |-
         (?x)(?i)
           (cf
-          (?:ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar
-          |chart|chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo
-          |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar
-          |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask
-          |execute|feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn
-          |gridrow|gridupdate|header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image
-          |imap|imapfilter|import|include|index|input|insert|invoke|invokeargument|layout
-          |layoutarea|ldap|location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart
-          |map|mapitem|mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object
-          |objectcache|output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop
-          |presentation|presentationslide|presenter|print|processingdirective|procparam|procresult
-          |progressbar|property|query|queryparam|registry|report|reportparam|savecontent|schedule
-          |search|select|setting|sharepoint|silent|slider|spreadsheet|sprydataset|storedproc
-          |table|textarea|textinput|thread|throw|timer|tooltip|trace|transaction|tree|treeitem|try
-          |update|video|videoplayer|videoplayerparam|wddx|websocket|window|xml|zip|zipparam)
-        )\(
+            (?:{tags})
+          )\(
       captures:
         1: entity.name.tag.script.cfml
       push:
@@ -1021,7 +991,7 @@ contexts:
   tag-generic-attribute-cf-script:
     - match: ','
       scope: punctuation.separator.comma.cfml
-    - match: \b([a-zA-Z0-9:-]+)\b
+    - match: \b{{attribute_name}}\b
       scope: entity.other.attribute-name.cfml
       push:
         - match: '='

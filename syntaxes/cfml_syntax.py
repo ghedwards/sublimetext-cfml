@@ -1,5 +1,5 @@
+import sublime
 from ruamel.yaml.comments import CommentedMap
-from YAMLMacros.lib.syntax import meta, expect, pop_on, stack
 
 ORDERED_KEYS = ['meta_scope', 'meta_content_scope', 'match', 'scope', 'captures', 'push', 'set', 'pop']
 
@@ -86,3 +86,36 @@ def attribute_value_unquoted(value_scope):
         ])
 
     return syntax
+
+
+def load_tag_list():
+    tags_to_filter = [
+        'abort',
+        'admin',
+        'case',
+        'catch',
+        'component',
+        'continue',
+        'defaultcase',
+        'else',
+        'elseif',
+        'exit',
+        'finally',
+        'function',
+        'if',
+        'interface',
+        'rethrow',
+        'retry',
+        'return',
+        'script',
+        'servlet',
+        'servletparam',
+        'set',
+        'sleep',
+        'switch',
+        'try',
+        'while'
+    ]
+    tags = sublime.load_resource("Packages/CFML/src/basecompletions/json/cfml_tags.json")
+    tags = sublime.decode_value(tags).keys()
+    return [t.lower()[2:] for t in tags if t not in tags_to_filter]

@@ -20,6 +20,7 @@ variables:
   identifier: '[_$[:alpha:]][_$[:alnum:]]*'
   dot_path_identifier: '[_$[:alpha:]][_$[:alnum:].]*'
   constant_identifier: '[[:upper:]][_$[:digit:][:upper:]]*\b'
+  attribute_name: '[_[:alpha:]][[:alnum:]_\-:]*'
   arrow_func_lookahead: \s*\([^()]*?\)\s*=>
   sql_lookahead: \s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER
     BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b
@@ -466,8 +467,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -675,8 +676,9 @@ contexts:
       - include: else-pop
     - - meta_scope: meta.function.declaration.cfml
       - include: immediately-pop
-    - - include: scope:embedding.cfml#tag-generic-attribute
-      - include: else-pop
+    - - match: (?=[;{])
+        pop: true
+      - include: scope:embedding.cfml#tag-generic-attribute
     - - include: function-declaration-parameters
       - include: else-pop
     - - match: \b(?:{{identifier}})\b
@@ -745,8 +747,9 @@ contexts:
         1: storage.type.cfml
         2: variable.parameter.function.cfml
       push:
-      - - include: scope:embedding.cfml#tag-generic-attribute
-        - include: else-pop
+      - - match: (?=[,)])
+          pop: true
+        - include: scope:embedding.cfml#tag-generic-attribute
       - - match: '='
           scope: keyword.operator.assignment.cfml
           set:
@@ -917,8 +920,8 @@ contexts:
             scope: punctuation.separator.function-call.cfml
           - match: \b({{identifier}})\s*(=)(?!=)
             captures:
-              '1': entity.other.function-parameter.cfml
               '2': keyword.operator.assignment.cfml
+              '1': entity.other.function-parameter.cfml
             push: expression-no-comma
           - match: (?=\S)
             push: expression-no-comma
@@ -968,8 +971,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -992,8 +995,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -1100,28 +1103,27 @@ contexts:
     - include: tag-generic-attribute-script
 
   - match: |-
-      (?x)
-          (\b)
-          (?i:
-            (ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar
-            |chart|chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo
-            |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar
-            |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask
-            |execute|feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn
-            |gridrow|gridupdate|header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image
-            |imap|imapfilter|import|include|index|input|insert|invoke|invokeargument|layout
-            |layoutarea|ldap|location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart
-            |map|mapitem|mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object
-            |objectcache|output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop
-            |presentation|presentationslide|presenter|print|processingdirective|procparam|procresult
-            |progressbar|property|query|queryparam|registry|report|reportparam|savecontent|schedule
-            |search|select|setting|sharepoint|silent|slider|spreadsheet|sprydataset|storedproc
-            |table|textarea|textinput|thread|throw|timer|tooltip|trace|transaction|tree|treeitem|try
-            |update|video|videoplayer|videoplayerparam|wddx|websocket|window|xml|zip|zipparam)
-          )
-          (?=\s+[a-zA-Z0-9:-]+\s*[=;{\n]|\s*[{\n])
+      (?x)(?i)
+          \b(abort|admin|ajaximport|ajaxproxy|applet|application|argument|associate|break|cache       
+      |calendar|case|catch|chart|chartdata|chartseries|client|clientsettings|col|collection       
+      |component|content|continue|cookie|dbinfo|defaultcase|directory|div|document|documentitem       
+      |documentsection|dump|else|elseif|error|exchangecalendar|exchangeconnection|exchangecontact       
+      |exchangefilter|exchangemail|exchangetask|execute|exit|feed|file|fileupload|finally       
+      |flush|form|formgroup|formitem|ftp|function|grid|gridcolumn|gridrow|gridupdate|header       
+      |htmlhead|htmltopdf|htmltopdfitem|http|httpparam|if|image|imap|imapfilter|import       
+      |include|index|input|insert|interface|invoke|invokeargument|layout|layoutarea|ldap       
+      |location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem       
+      |mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache       
+      |output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
+      |presenter|print|processingdirective|procparam|procresult|progressbar|property|query       
+      |queryparam|registry|report|reportparam|rethrow|retry|return|savecontent|schedule       
+      |script|search|select|servlet|servletparam|set|setting|sharepoint|silent|sleep|slider       
+      |spreadsheet|sprydataset|storedproc|switch|table|textarea|textinput|thread|throw       
+      |timer|tooltip|trace|transaction|tree|treeitem|try|update|wddx|websocket|while|window       
+      |xml|zip|zipparam)
+          (?=\s+{{attribute_name}}\s*[=;{\n]|\s*[{\n])
     captures:
-      2: entity.name.tag.script.cfml
+      1: entity.name.tag.script.cfml
     push:
     - meta_scope: meta.tag.script.cfml
     - match: (?=;)
@@ -1131,7 +1133,7 @@ contexts:
     - include: tag-generic-attribute-script
 
   tag-generic-attribute-script:
-  - match: \b([a-zA-Z0-9:-]+)\b
+  - match: \b{{attribute_name}}\b
     scope: entity.other.attribute-name.cfml
     push:
     - match: '='
@@ -1143,22 +1145,24 @@ contexts:
   - match: |-
       (?x)(?i)
         (cf
-        (?:ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar
-        |chart|chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo
-        |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar
-        |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask
-        |execute|feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn
-        |gridrow|gridupdate|header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image
-        |imap|imapfilter|import|include|index|input|insert|invoke|invokeargument|layout
-        |layoutarea|ldap|location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart
-        |map|mapitem|mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object
-        |objectcache|output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop
-        |presentation|presentationslide|presenter|print|processingdirective|procparam|procresult
-        |progressbar|property|query|queryparam|registry|report|reportparam|savecontent|schedule
-        |search|select|setting|sharepoint|silent|slider|spreadsheet|sprydataset|storedproc
-        |table|textarea|textinput|thread|throw|timer|tooltip|trace|transaction|tree|treeitem|try
-        |update|video|videoplayer|videoplayerparam|wddx|websocket|window|xml|zip|zipparam)
-      )\(
+          (?:abort|admin|ajaximport|ajaxproxy|applet|application|argument|associate|break|cache       
+      |calendar|case|catch|chart|chartdata|chartseries|client|clientsettings|col|collection       
+      |component|content|continue|cookie|dbinfo|defaultcase|directory|div|document|documentitem       
+      |documentsection|dump|else|elseif|error|exchangecalendar|exchangeconnection|exchangecontact       
+      |exchangefilter|exchangemail|exchangetask|execute|exit|feed|file|fileupload|finally       
+      |flush|form|formgroup|formitem|ftp|function|grid|gridcolumn|gridrow|gridupdate|header       
+      |htmlhead|htmltopdf|htmltopdfitem|http|httpparam|if|image|imap|imapfilter|import       
+      |include|index|input|insert|interface|invoke|invokeargument|layout|layoutarea|ldap       
+      |location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem       
+      |mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache       
+      |output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
+      |presenter|print|processingdirective|procparam|procresult|progressbar|property|query       
+      |queryparam|registry|report|reportparam|rethrow|retry|return|savecontent|schedule       
+      |script|search|select|servlet|servletparam|set|setting|sharepoint|silent|sleep|slider       
+      |spreadsheet|sprydataset|storedproc|switch|table|textarea|textinput|thread|throw       
+      |timer|tooltip|trace|transaction|tree|treeitem|try|update|wddx|websocket|while|window       
+      |xml|zip|zipparam)
+        )\(
     captures:
       1: entity.name.tag.script.cfml
     push:
@@ -1170,7 +1174,7 @@ contexts:
   tag-generic-attribute-cf-script:
   - match: ','
     scope: punctuation.separator.comma.cfml
-  - match: \b([a-zA-Z0-9:-]+)\b
+  - match: \b{{attribute_name}}\b
     scope: entity.other.attribute-name.cfml
     push:
     - match: '='
@@ -1315,8 +1319,8 @@ contexts:
       scope: punctuation.separator.function-call.support.cfml
     - match: \b({{identifier}})\s*(=)(?!=)
       captures:
-        '1': entity.other.function-parameter.cfml
         '2': keyword.operator.assignment.cfml
+        '1': entity.other.function-parameter.cfml
       push: expression-no-comma
     - match: (?=\S)
       push: expression-no-comma
@@ -1355,8 +1359,8 @@ contexts:
           scope: punctuation.separator.function-call.method.support.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '1': entity.other.method-parameter.cfml
             '2': keyword.operator.assignment.cfml
+            '1': entity.other.method-parameter.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma

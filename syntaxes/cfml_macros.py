@@ -1,3 +1,4 @@
+import re
 from CFML.syntaxes import cfml_syntax
 
 def meta(scope):
@@ -16,11 +17,19 @@ def expect(name, scope):
     ]
     return cfml_syntax.order_output(syntax)
 
-def expect_context(context):
-    return [
-        {'include': context},
-        {'include': 'else-pop'}
+def expect_context(context, exit_lookahead=None):
+    syntax = [
+        {'include': context}
     ]
+
+    if exit_lookahead:
+        syntax.insert(0, {
+            'match': r'(?=%s)' % exit_lookahead,
+            'pop': True
+        })
+    else:
+        syntax.append({'include': 'else-pop'})
+
     return cfml_syntax.order_output(syntax)
 
 def attribute(name, value_scope, name_scope=None, meta_scope=None):
@@ -127,3 +136,10 @@ def keyword_control(name, scope, meta_scope, contexts='block'):
         syntax['push'].append('parens-scope')
 
     return cfml_syntax.order_output(syntax)
+
+def tags(match):
+    match_indent = len(re.search(r'^(.*)\{tags\}', match, flags=re.MULTILINE).group(1))
+    tags = cfml_syntax.load_tag_list()
+    tags_regex = '|'.join(sorted(tags))
+    tags_regex =  re.sub(r'(.{80}[^|]*)', r'\1%s\n' % (' ' * match_indent), tags_regex)
+    return match.replace('{tags}', tags_regex)

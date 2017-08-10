@@ -1104,23 +1104,21 @@ contexts:
 
   - match: |-
       (?x)(?i)
-          \b(abort|admin|ajaximport|ajaxproxy|applet|application|argument|associate|break|cache       
-      |calendar|case|catch|chart|chartdata|chartseries|client|clientsettings|col|collection       
-      |component|content|continue|cookie|dbinfo|defaultcase|directory|div|document|documentitem       
-      |documentsection|dump|else|elseif|error|exchangecalendar|exchangeconnection|exchangecontact       
-      |exchangefilter|exchangemail|exchangetask|execute|exit|feed|file|fileupload|finally       
-      |flush|form|formgroup|formitem|ftp|function|grid|gridcolumn|gridrow|gridupdate|header       
-      |htmlhead|htmltopdf|htmltopdfitem|http|httpparam|if|image|imap|imapfilter|import       
-      |include|index|input|insert|interface|invoke|invokeargument|layout|layoutarea|ldap       
-      |location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem       
-      |mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache       
-      |output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
+          \b(ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar|chart       
+      |chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo       
+      |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar       
+      |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask|execute       
+      |feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn|gridrow|gridupdate       
+      |header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image|imap|imapfilter|import       
+      |include|index|input|insert|invoke|invokeargument|layout|layoutarea|ldap|location       
+      |lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem|mediaplayer       
+      |menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache|output|param       
+      |pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
       |presenter|print|processingdirective|procparam|procresult|progressbar|property|query       
-      |queryparam|registry|report|reportparam|rethrow|retry|return|savecontent|schedule       
-      |script|search|select|servlet|servletparam|set|setting|sharepoint|silent|sleep|slider       
-      |spreadsheet|sprydataset|storedproc|switch|table|textarea|textinput|thread|throw       
-      |timer|tooltip|trace|transaction|tree|treeitem|try|update|wddx|websocket|while|window       
-      |xml|zip|zipparam)
+      |queryparam|registry|report|reportparam|savecontent|schedule|search|select|setting       
+      |sharepoint|silent|slider|spreadsheet|sprydataset|storedproc|table|textarea|textinput       
+      |thread|throw|timer|tooltip|trace|transaction|tree|treeitem|update|wddx|websocket       
+      |window|xml|zip|zipparam)
           (?=\s+{{attribute_name}}\s*[=;{\n]|\s*[{\n])
     captures:
       1: entity.name.tag.script.cfml
@@ -1145,23 +1143,21 @@ contexts:
   - match: |-
       (?x)(?i)
         (cf
-          (?:abort|admin|ajaximport|ajaxproxy|applet|application|argument|associate|break|cache       
-      |calendar|case|catch|chart|chartdata|chartseries|client|clientsettings|col|collection       
-      |component|content|continue|cookie|dbinfo|defaultcase|directory|div|document|documentitem       
-      |documentsection|dump|else|elseif|error|exchangecalendar|exchangeconnection|exchangecontact       
-      |exchangefilter|exchangemail|exchangetask|execute|exit|feed|file|fileupload|finally       
-      |flush|form|formgroup|formitem|ftp|function|grid|gridcolumn|gridrow|gridupdate|header       
-      |htmlhead|htmltopdf|htmltopdfitem|http|httpparam|if|image|imap|imapfilter|import       
-      |include|index|input|insert|interface|invoke|invokeargument|layout|layoutarea|ldap       
-      |location|lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem       
-      |mediaplayer|menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache       
-      |output|param|pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
+          (?:ajaximport|ajaxproxy|applet|application|argument|associate|break|cache|calendar|chart       
+      |chartdata|chartseries|client|clientsettings|col|collection|content|cookie|dbinfo       
+      |directory|div|document|documentitem|documentsection|dump|error|exchangecalendar       
+      |exchangeconnection|exchangecontact|exchangefilter|exchangemail|exchangetask|execute       
+      |feed|file|fileupload|flush|form|formgroup|formitem|ftp|grid|gridcolumn|gridrow|gridupdate       
+      |header|htmlhead|htmltopdf|htmltopdfitem|http|httpparam|image|imap|imapfilter|import       
+      |include|index|input|insert|invoke|invokeargument|layout|layoutarea|ldap|location       
+      |lock|log|login|loginuser|logout|loop|mail|mailparam|mailpart|map|mapitem|mediaplayer       
+      |menu|menuitem|messagebox|module|ntauthenticate|oauth|object|objectcache|output|param       
+      |pdf|pdfform|pdfformparam|pdfparam|pdfsubform|pod|pop|presentation|presentationslide       
       |presenter|print|processingdirective|procparam|procresult|progressbar|property|query       
-      |queryparam|registry|report|reportparam|rethrow|retry|return|savecontent|schedule       
-      |script|search|select|servlet|servletparam|set|setting|sharepoint|silent|sleep|slider       
-      |spreadsheet|sprydataset|storedproc|switch|table|textarea|textinput|thread|throw       
-      |timer|tooltip|trace|transaction|tree|treeitem|try|update|wddx|websocket|while|window       
-      |xml|zip|zipparam)
+      |queryparam|registry|report|reportparam|savecontent|schedule|search|select|setting       
+      |sharepoint|silent|slider|spreadsheet|sprydataset|storedproc|table|textarea|textinput       
+      |thread|throw|timer|tooltip|trace|transaction|tree|treeitem|update|wddx|websocket       
+      |window|xml|zip|zipparam)
         )\(
     captures:
       1: entity.name.tag.script.cfml

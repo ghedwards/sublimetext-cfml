@@ -118,4 +118,4 @@ def load_tag_list():
     ]
     tags = sublime.load_resource("Packages/CFML/src/basecompletions/json/cfml_tags.json")
     tags = sublime.decode_value(tags).keys()
-    return [t.lower()[2:] for t in tags if t not in tags_to_filter]
+    return [t.lower()[2:] for t in tags if t.lower()[2:] not in tags_to_filter]

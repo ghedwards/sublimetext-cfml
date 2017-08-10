@@ -166,16 +166,15 @@ contexts:
                   - expect-case-colon
               - include: statements
           - include: else-pop
-        - - include: parenthesized-expression
-          - include: else-pop
+        - !expect_context parenthesized-expression
 
     - match: \bdo\b
       scope: keyword.control.loop.cfml
       push:
         - !meta meta.do-while.cfml
-        - - include: parens-scope
+        - !expect_context parens-scope
         - !expect [ 'while', 'keyword.control.loop.cfml' ]
-        - - include: block-scope
+        - !expect_context block-scope
 
     - !keyword_control [ 'for', 'loop', 'for', 'parens-block' ]
     - !keyword_control [ 'while', 'loop', 'while', 'parens-block' ]
@@ -219,6 +218,17 @@ contexts:
     - match: \)
       scope: invalid.illegal.stray.brace.round.cfml
       pop: true
+
+  function-call:
+    - match: \(
+      scope: punctuation.section.group.begin.cfml
+      push:
+        - meta_scope: meta.group.cfml
+        - match: \)
+          scope: punctuation.section.group.end.cfml
+          pop: true
+        - match: (?=\S)
+          push: expression
 
   block-scope:
     - !block ['set', 'meta.block.cfml']
@@ -352,11 +362,10 @@ contexts:
   string-double:
     - meta_include_prototype: false
     - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-    - match: ("")
+    - match: '""'
       scope: constant.character.escape.quote.cfml
-    - match: (")
-      captures:
-        1: punctuation.definition.string.end.cfml
+    - match: '"'
+      scope: punctuation.definition.string.end.cfml
       pop: true
     - include: scope:embedding.cfml#string-hash-delimiters
 
@@ -531,13 +540,11 @@ contexts:
   anonymous-function:
     - match: '(?={{func_assignment_lookahead}})'
       set:
-        - - meta_scope: meta.function.anonymous.cfml
-          - include: immediately-pop
+        - !meta meta.function.anonymous.cfml
         - function-declaration
     - match: '(?={{arrow_func_lookahead}})'
       set:
-        - - meta_scope: meta.function.anonymous.cfml
-          - include: immediately-pop
+        - !meta meta.function.anonymous.cfml
         - arrow-function-declaration
 
   function-declaration-identifiers:
@@ -635,8 +642,7 @@ contexts:
             1: storage.type.cfml
             2: variable.parameter.function.cfml
           push:
-            - - include: scope:embedding.cfml#tag-generic-attribute
-              - include: else-pop
+            - !expect_context scope:embedding.cfml#tag-generic-attribute
             - - match: '='
                 scope: keyword.operator.assignment.cfml
                 set:
@@ -669,23 +675,18 @@ contexts:
         - match: '\}'
           scope: punctuation.section.block.end.cfml
           pop: true
-
         - match: "(?=('[^']*'|\"[^\"]*\"|{{identifier}})\\s*(:|=)({{func_assignment_lookahead}}|{{arrow_func_lookahead}}))"
           push:
-            - - include: either-function-declaration
-              - include: else-pop
-            - - meta_scope: meta.function.declaration.cfml
-              - include: immediately-pop
+            - !expect_context either-function-declaration
+            - !meta meta.function.declaration.cfml
             - - match: '[:=]'
                 scope: punctuation.separator.key-value.cfml
               - include: else-pop
-            - - meta_scope: meta.struct-literal.key.cfml
-              - include: else-pop
+            - !meta meta.struct-literal.key.cfml
             - method-name
         - match: "(?=\"|')"
           push:
-            - - meta_scope: meta.struct-literal.key.cfml
-              - include: immediately-pop
+            - !meta meta.struct-literal.key.cfml
             - string
         - match: '[_$[:alnum:]]+(?=\s*[:=])'
           scope: meta.struct-literal.key.cfml
@@ -705,9 +706,8 @@ contexts:
         - meta_include_prototype: false
         - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
         - meta_content_scope: entity.name.function.cfml
-        - match: (')
-          captures:
-            1: punctuation.definition.string.end.cfml
+        - match: "'"
+          scope: punctuation.definition.string.end.cfml
           pop: true
         - include: scope:embedding.cfml#string-hash-delimiters
     - match: '"'
@@ -716,22 +716,10 @@ contexts:
         - meta_include_prototype: false
         - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
         - meta_content_scope: entity.name.function.cfml
-        - match: (")
-          captures:
-            1: punctuation.definition.string.end.cfml
+        - match: '"'
+          scope: punctuation.definition.string.end.cfml
           pop: true
         - include: scope:embedding.cfml#string-hash-delimiters
-
-  function-call:
-    - match: \(
-      scope: punctuation.section.group.begin.cfml
-      push:
-        - meta_scope: meta.group.cfml
-        - match: \)
-          scope: punctuation.section.group.end.cfml
-          pop: true
-        - match: (?=\S)
-          push: expression
 
   array-literal:
     - match: '\['
@@ -769,10 +757,7 @@ contexts:
               set: arrow-function-declaration
             - include: function-declaration-final-identifier
         - match: '(?={{identifier}}\s*\()'
-          set:
-            - include: method-call
-            - match: '(?=(.|\n))'
-              pop: true
+          set: method-call
         - include: struct-property
     - match: '::'
       scope: punctuation.accessor.static.cfml
@@ -786,10 +771,7 @@ contexts:
               set: arrow-function-declaration
             - include: function-declaration-final-identifier
         - match: '(?={{identifier}}\s*\()'
-          set:
-            - include: static-method-call
-            - match: '(?=(.|\n))'
-              pop: true
+          set: static-method-call
         - include: struct-property
 
   number:

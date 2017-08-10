@@ -21,7 +21,8 @@ variables:
   dot_path_identifier: '[_$[:alpha:]][_$[:alnum:].]*'
   constant_identifier: '[[:upper:]][_$[:digit:][:upper:]]*\b'
   arrow_func_lookahead: \s*\([^()]*?\)\s*=>
-  sql_lookahead: \s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b
+  sql_lookahead: \s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|REPLACE|ALTER|WITH|DECLARE|FROM|WHERE|AND|ORDER
+    BY|GROUP BY|INNER JOIN|OUTER JOIN|LEFT JOIN|TRUNCATE TABLE|BULK INSERT)\b
   param_attributes: \b(name|default|max|maxLength|min|pattern|type)\b
   storage_modifier: \b(private|package|public|remote|static|final|abstract)\b
   return_types: \b(?:any|array|binary|boolean|component|date|guid|numeric|query|string|struct|xml|uuid)\b
@@ -175,21 +176,25 @@ contexts:
           - expect-case-colon
         - include: statements
       - include: else-pop
-    - - include: parenthesized-expression
-      - include: else-pop
+    -                     
 
+      - include: parenthesized-expression
+      - include: else-pop
   - match: \bdo\b
     scope: keyword.control.loop.cfml
     push:
     - - meta_scope: meta.do-while.cfml
       - include: immediately-pop
     - - include: parens-scope
+      - include: else-pop
     - - match: \b(?:while)\b
         scope: keyword.control.loop.cfml
         pop: true
       - include: else-pop
-    - - include: block-scope
+    -                     
 
+      - include: block-scope
+      - include: else-pop
   - match: \b(?:for)\b
     scope: keyword.control.loop.cfml
     push:
@@ -271,6 +276,17 @@ contexts:
   - match: \)
     scope: invalid.illegal.stray.brace.round.cfml
     pop: true
+
+  function-call:
+  - match: \(
+    scope: punctuation.section.group.begin.cfml
+    push:
+    - meta_scope: meta.group.cfml
+    - match: \)
+      scope: punctuation.section.group.end.cfml
+      pop: true
+    - match: (?=\S)
+      push: expression
 
   block-scope:
   - match: \{
@@ -411,11 +427,10 @@ contexts:
   string-double:
   - meta_include_prototype: false
   - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
-  - match: ("")
+  - match: '""'
     scope: constant.character.escape.quote.cfml
-  - match: (")
-    captures:
-      1: punctuation.definition.string.end.cfml
+  - match: '"'
+    scope: punctuation.definition.string.end.cfml
     pop: true
   - include: scope:embedding.cfml#string-hash-delimiters
 
@@ -451,8 +466,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '2': keyword.operator.assignment.cfml
             '1': entity.other.method-parameter.cfml
+            '2': keyword.operator.assignment.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -699,9 +714,10 @@ contexts:
         scope: storage.type.function.arrow.cfml
         pop: true
       - include: else-pop
-    - - include: function-declaration-parameters
-      - include: else-pop
+    -                     
 
+      - include: function-declaration-parameters
+      - include: else-pop
   function-block:
   - match: \{
     scope: punctuation.section.block.begin.cfml
@@ -764,7 +780,6 @@ contexts:
     - match: \}
       scope: punctuation.section.block.end.cfml
       pop: true
-
     - match: (?=('[^']*'|"[^"]*"|{{identifier}})\s*(:|=)({{func_assignment_lookahead}}|{{arrow_func_lookahead}}))
       push:
       - - include: either-function-declaration
@@ -775,7 +790,7 @@ contexts:
           scope: punctuation.separator.key-value.cfml
         - include: else-pop
       - - meta_scope: meta.struct-literal.key.cfml
-        - include: else-pop
+        - include: immediately-pop
       - method-name
     - match: (?="|')
       push:
@@ -800,9 +815,8 @@ contexts:
     - meta_include_prototype: false
     - meta_scope: meta.string.quoted.single.cfml string.quoted.single.cfml
     - meta_content_scope: entity.name.function.cfml
-    - match: (')
-      captures:
-        1: punctuation.definition.string.end.cfml
+    - match: "'"
+      scope: punctuation.definition.string.end.cfml
       pop: true
     - include: scope:embedding.cfml#string-hash-delimiters
   - match: '"'
@@ -811,22 +825,10 @@ contexts:
     - meta_include_prototype: false
     - meta_scope: meta.string.quoted.double.cfml string.quoted.double.cfml
     - meta_content_scope: entity.name.function.cfml
-    - match: (")
-      captures:
-        1: punctuation.definition.string.end.cfml
+    - match: '"'
+      scope: punctuation.definition.string.end.cfml
       pop: true
     - include: scope:embedding.cfml#string-hash-delimiters
-
-  function-call:
-  - match: \(
-    scope: punctuation.section.group.begin.cfml
-    push:
-    - meta_scope: meta.group.cfml
-    - match: \)
-      scope: punctuation.section.group.end.cfml
-      pop: true
-    - match: (?=\S)
-      push: expression
 
   array-literal:
   - match: \[
@@ -864,10 +866,7 @@ contexts:
         set: arrow-function-declaration
       - include: function-declaration-final-identifier
     - match: (?={{identifier}}\s*\()
-      set:
-      - include: method-call
-      - match: (?=(.|\n))
-        pop: true
+      set: method-call
     - include: struct-property
   - match: '::'
     scope: punctuation.accessor.static.cfml
@@ -881,10 +880,7 @@ contexts:
         set: arrow-function-declaration
       - include: function-declaration-final-identifier
     - match: (?={{identifier}}\s*\()
-      set:
-      - include: static-method-call
-      - match: (?=(.|\n))
-        pop: true
+      set: static-method-call
     - include: struct-property
 
   number:
@@ -921,8 +917,8 @@ contexts:
             scope: punctuation.separator.function-call.cfml
           - match: \b({{identifier}})\s*(=)(?!=)
             captures:
-              '2': keyword.operator.assignment.cfml
               '1': entity.other.function-parameter.cfml
+              '2': keyword.operator.assignment.cfml
             push: expression-no-comma
           - match: (?=\S)
             push: expression-no-comma
@@ -972,8 +968,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '2': keyword.operator.assignment.cfml
             '1': entity.other.method-parameter.cfml
+            '2': keyword.operator.assignment.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -996,8 +992,8 @@ contexts:
           scope: punctuation.separator.function-call.method.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '2': keyword.operator.assignment.cfml
             '1': entity.other.method-parameter.cfml
+            '2': keyword.operator.assignment.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma
@@ -1319,8 +1315,8 @@ contexts:
       scope: punctuation.separator.function-call.support.cfml
     - match: \b({{identifier}})\s*(=)(?!=)
       captures:
-        '2': keyword.operator.assignment.cfml
         '1': entity.other.function-parameter.cfml
+        '2': keyword.operator.assignment.cfml
       push: expression-no-comma
     - match: (?=\S)
       push: expression-no-comma
@@ -1359,8 +1355,8 @@ contexts:
           scope: punctuation.separator.function-call.method.support.cfml
         - match: \b({{identifier}})\s*(=)(?!=)
           captures:
-            '2': keyword.operator.assignment.cfml
             '1': entity.other.method-parameter.cfml
+            '2': keyword.operator.assignment.cfml
           push: expression-no-comma
         - match: (?=\S)
           push: expression-no-comma

@@ -9,6 +9,9 @@ file_extensions:
   - cfc
 scope: embedding.cfml
 
+variables:
+  attribute_name: '[_[:alpha:]][[:alnum:]_\-:]*'
+
 contexts:
   else-pop:
     - match: (?=\S)
@@ -401,7 +404,7 @@ contexts:
 
   tag-generic-attribute:
     - include: comments
-    - match: \b[a-zA-Z0-9:-]+\b
+    - match: \b{{attribute_name}}\b
       scope: entity.other.attribute-name.cfml
       push:
         - match: '='
@@ -418,6 +421,9 @@ contexts:
               pop: true
         - match: (?=\S)
           pop: true
+    - match: \S
+      scope: invalid.illegal.attribute-name.cfml
+
 
   tags-with-script:
     - match: (?i)(<)(cfset|cfreturn|cfif|cfelseif)(?=\s|/?>)

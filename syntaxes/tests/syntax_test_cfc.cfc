@@ -151,6 +151,7 @@ default="string";
 //                                                         ^ string.quoted.double.cfml punctuation.definition.string.begin.cfml
 
   function go( required string param = true ) {}
+//^ storage.type.function.cfml
 //                                     ^ meta.parameter.optional.cfml constant.language.boolean.true.cfml
 
 public void function setup( required root.model.cava.connection connection ) {}

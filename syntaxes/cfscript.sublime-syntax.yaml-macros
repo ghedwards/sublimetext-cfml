@@ -577,14 +577,22 @@ contexts:
         - !expect_context [ 'scope:embedding.cfml#tag-generic-attribute', '[;{]' ]
         - !expect_context function-declaration-parameters
         - !expect [ '{{identifier}}', 'entity.name.function.cfml' ]
-        - !expect [ 'function', 'storage.type.function.cfml' ]
-        - !expect_context function-return-types
-        - - match: (?i)({{storage_modifier}})(\s+({{storage_modifier}}))?
-            captures:
-              1: storage.modifier.cfml
-              4: storage.modifier.cfml # why is this group 4?
+        # waiting on the fix for https://github.com/SublimeTextIssues/Core/issues/1190 to make it out of dev
+        # - !expect [ 'function', 'storage.type.function.cfml' ]
+        # - !expect_context function-return-types
+        # - - match: (?i)({{storage_modifier}})(\s+({{storage_modifier}}))?
+        #     captures:
+        #       1: storage.modifier.cfml
+        #       4: storage.modifier.cfml # why is this group 4?
+        #     pop: true
+        #   - include: else-pop
+        - - match: (?i)\bfunction\b(?!{{func_assignment_lookahead}})
+            scope: storage.type.function.cfml
             pop: true
-          - include: else-pop
+          - match: (?i){{storage_modifier}}
+            scope: storage.modifier.cfml
+          - match: '(?=[A-Za-z])'
+            push: storage-types
 
   arrow-function-declaration:
     - match: (?=.)
@@ -605,10 +613,7 @@ contexts:
         - !expect_context function-declaration-parameters
 
   function-return-types:
-    - match: (?i)\bfunction\b(?={{func_assignment_lookahead}})
-      scope: storage.type.return-type.function.cfml
-      pop: true
-    - match: (?=\bfunction\b)
+    - match: (?i)(?=\bfunction\b(?!{{func_assignment_lookahead}}))
       pop: true
     - include: storage-types
 

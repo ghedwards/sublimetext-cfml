@@ -544,7 +544,7 @@ contexts:
       2: entity.name.tag.custom.cfml
     push:
     - meta_scope: meta.tag.custom.cfml
-    - match: (/?>)
+    - match: /?>
       scope: punctuation.definition.tag.end.cfml
       pop: true
     - include: tag-generic-attribute
@@ -562,7 +562,7 @@ contexts:
       4: entity.name.tag.custom.cfml
     push:
     - meta_scope: meta.tag.custom.cfml
-    - match: (/?>)
+    - match: /?>
       scope: punctuation.definition.tag.end.cfml
       pop: true
     - include: tag-generic-attribute
@@ -614,9 +614,7 @@ contexts:
         - match: (?=[\s</>{;])
           pop: true
         - include: string-template-expression
-      - match: (?=\S)
-        pop: true
-    - match: (?=\S)
-      pop: true
+      - include: else-pop
+    - include: else-pop
   - match: \S
     scope: invalid.illegal.attribute-name.cfml

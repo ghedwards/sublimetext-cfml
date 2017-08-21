@@ -64,7 +64,7 @@ contexts:
         2: entity.name.tag.cfml storage.type.class.cfml
       push:
         - meta_scope: meta.tag.cfml meta.class.cfml
-        - match: ">"
+        - match: '>'
           scope: punctuation.definition.tag.end.cfml
           set: cfcomponent-contents
         - include: cfcomponent-attributes
@@ -95,7 +95,7 @@ contexts:
         2: entity.name.tag.cfml storage.type.interface.cfml
       push:
         - meta_scope: meta.tag.cfml meta.interface.cfml
-        - match: ">"
+        - match: '>'
           scope: punctuation.definition.tag.end.cfml
           set: cfinterface-contents
         - include: cfcomponent-attributes
@@ -159,7 +159,7 @@ contexts:
         2: entity.name.tag.cfml
       push:
         - meta_scope: meta.tag.cfml
-        - match: ">"
+        - match: '>'
           scope: punctuation.definition.tag.end.cfml
           set:
             - meta_content_scope: meta.scope.cfoutput.cfml text.html.cfml
@@ -309,7 +309,7 @@ contexts:
       scope: punctuation.definition.comment.cfml
       push:
         - meta_scope: comment.block.cfml
-        - match: "--->"
+        - match: --->
           pop: true
         - include: comments
 
@@ -345,7 +345,7 @@ contexts:
         2: entity.name.tag.custom.cfml
       push:
         - meta_scope: meta.tag.custom.cfml
-        - match: (/?>)
+        - match: '/?>'
           scope: punctuation.definition.tag.end.cfml
           pop: true
         - include: tag-generic-attribute
@@ -363,7 +363,7 @@ contexts:
         4: entity.name.tag.custom.cfml
       push:
         - meta_scope: meta.tag.custom.cfml
-        - match: (/?>)
+        - match: '/?>'
           scope: punctuation.definition.tag.end.cfml
           pop: true
         - include: tag-generic-attribute
@@ -415,9 +415,7 @@ contexts:
                 - match: (?=[\s</>{;])
                   pop: true
                 - include: string-template-expression
-            - match: (?=\S)
-              pop: true
-        - match: (?=\S)
-          pop: true
+            - include: else-pop
+        - include: else-pop
     - match: \S
       scope: invalid.illegal.attribute-name.cfml

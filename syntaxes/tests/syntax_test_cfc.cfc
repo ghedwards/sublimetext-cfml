@@ -93,7 +93,7 @@ default="string";
 //      ^ meta.function-call.method.cfml
 //            ^ meta.function-call.method.cfml meta.function-call.parameters.method.cfml punctuation.section.group.begin.cfml
 //             ^ meta.function-call.method.cfml meta.function-call.parameters.method.cfml entity.other.method-parameter.cfml
-//                  ^ meta.function-call.method.cfml meta.function-call.parameters.method.cfml keyword.operator.assignment.cfml
+//                  ^ meta.function-call.method.cfml meta.function-call.parameters.method.cfml keyword.operator.assignment.binary.cfml
     var mycfc = createObject( 'component', 'path.to.cfc' );
 //              ^ meta.function-call.support.cfml meta.function-call.support.createcomponent.cfml support.function.cfml
     var mycfc = new path.to.cfc(test = true, random = "string");
@@ -101,7 +101,7 @@ default="string";
 //                          ^ meta.instance.constructor.cfml entity.name.class.cfml
 //                             ^ meta.instance.constructor.cfml meta.function-call.parameters.method.cfml punctuation.section.group.begin.cfml
 //                              ^ meta.instance.constructor.cfml meta.function-call.parameters.method.cfml entity.other.method-parameter.cfml
-//                                   ^  meta.instance.constructor.cfml meta.function-call.parameters.method.cfml keyword.operator.assignment.cfml
+//                                   ^  meta.instance.constructor.cfml meta.function-call.parameters.method.cfml keyword.operator.assignment.binary.cfml
     new path.to.cfc().callmethod();
 //                   ^ punctuation.accessor.cfml
 //                    ^ meta.function-call.method.cfml

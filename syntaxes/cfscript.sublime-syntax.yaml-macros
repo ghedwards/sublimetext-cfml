@@ -402,30 +402,30 @@ contexts:
 
   prefix-operators:
     - match: '!(?!=)'
-      scope: keyword.operator.logical.cfml
+      scope: keyword.operator.logical.prefix.cfml
     - match: \b(?i:not)\b
-      scope: keyword.operator.logical.cfml
+      scope: keyword.operator.logical.prefix.cfml
     - match: '--'
-      scope: keyword.operator.arithmetic.cfml
+      scope: keyword.operator.arithmetic.prefix.cfml
     - match: '\+\+'
-      scope: keyword.operator.arithmetic.cfml
+      scope: keyword.operator.arithmetic.prefix.cfml
     - match: \+|\-
-      scope: keyword.operator.arithmetic.cfml
+      scope: keyword.operator.arithmetic.prefix.cfml
     - match: \bnew\b
-      scope: keyword.operator.word.new.cfml
+      scope: keyword.operator.word.new.prefix.cfml
 
   binary-operators:
     - match: \bin\b
-      scope: keyword.operator.cfml
+      scope: keyword.operator.binary.cfml
       push: expression-begin
     - match: '&&|\|\|'
-      scope: keyword.operator.logical.cfml
+      scope: keyword.operator.logical.binary.cfml
       push: expression-begin
     - match: \b(?i:(and|or|xor|eqv|imp))\b
-      scope: keyword.operator.logical.cfml
+      scope: keyword.operator.logical.binary.cfml
       push: expression-begin
     - match: '=(?![=>])'
-      scope: keyword.operator.assignment.cfml
+      scope: keyword.operator.assignment.binary.cfml
       push: expression-begin
     - match: |-
         (?x)
@@ -435,10 +435,10 @@ contexts:
         \+=  | # assignment      right-to-left   both
         -=   | # assignment      right-to-left   both
         /=     # assignment      right-to-left   both
-      scope: keyword.operator.assignment.augmented.cfml
+      scope: keyword.operator.assignment.augmented.binary.cfml
       push: expression-begin
     - match: '&'
-      scope: keyword.operator.concat.cfml
+      scope: keyword.operator.concat.binary.cfml
       push: expression-begin
     - match: |-
         (?x)
@@ -450,7 +450,7 @@ contexts:
         \b(?i:(lt|less\s+than\s))\b |
         >    | # relational      left-to-right   both
         \b(?i:(gt|greater\s+than\s))\b
-      scope: keyword.operator.relational.cfml
+      scope: keyword.operator.relational.binary.cfml
       push: expression-begin
     - match: |-
         (?x)
@@ -460,10 +460,10 @@ contexts:
         \b(?i:eq)\b |
         !=   |  # equality        left-to-right   both
         \b(?i:neq)\b
-      scope: keyword.operator.comparison.cfml
+      scope: keyword.operator.comparison.binary.cfml
       push: expression-begin
     - match: \b(?i:(contains|does\s+not\s+contain))\b
-      scope: keyword.operator.decision.cfml
+      scope: keyword.operator.decision.binary.cfml
       push: expression-begin
     - match: |-
         (?x)
@@ -472,7 +472,7 @@ contexts:
         \*   | # multiplication  left-to-right   both
         \+   | # addition        left-to-right   both
         -      # subtraction     left-to-right   both
-      scope: keyword.operator.arithmetic.cfml
+      scope: keyword.operator.arithmetic.binary.cfml
       push: expression-begin
     - match: ','
       scope: punctuation.separator.comma.cfml
@@ -537,7 +537,7 @@ contexts:
         - match: '{{identifier}}'
           scope: variable.other.readwrite.cfml entity.name.function.cfml
         - match: '='
-          scope: keyword.operator.assignment.cfml
+          scope: keyword.operator.assignment.binary.cfml
 
   function-declaration-identifiers:
     - match: '(?={{identifier}}\s*\.)'
@@ -555,7 +555,7 @@ contexts:
     - match: '({{identifier}})\s*(=)'
       captures:
         1: meta.property.cfml entity.name.function.cfml
-        2: keyword.operator.assignment.cfml
+        2: keyword.operator.assignment.binary.cfml
 
   anonymous-function:
     - match: '(?={{func_assignment_lookahead}}|{{arrow_func_lookahead}})'
@@ -639,7 +639,7 @@ contexts:
           push:
             - !expect_context [ 'scope:embedding.cfml#tag-generic-attribute', '[,)]' ]
             - - match: '='
-                scope: keyword.operator.assignment.cfml
+                scope: keyword.operator.assignment.binary.cfml
                 set:
                   - !meta meta.parameter.optional.cfml
                   - expression-no-comma
@@ -922,14 +922,14 @@ contexts:
               2: meta.string.unquoted.cfml string.unquoted.cfml
             set:
               - match: '='
-                scope: keyword.operator.assignment.cfml
+                scope: keyword.operator.assignment.binary.cfml
                 set: expression
               - include: else-pop
           - match: \b{{dot_path_identifier}}\b
             scope: meta.string.unquoted.cfml string.unquoted.cfml
             set:
               - match: '='
-                scope: keyword.operator.assignment.cfml
+                scope: keyword.operator.assignment.binary.cfml
                 set: expression
               - include: else-pop
           - include: else-pop
